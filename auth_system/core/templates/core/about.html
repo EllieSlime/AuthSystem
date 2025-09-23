@@ -1,4 +1,4 @@
-{% extends "main/base.html" %}
+{% extends "core/base.html" %}
 {% block title %}О сервисе - SmartHome{% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
             <div class="hero-content">
                 <h1>О сервисе SmartHome</h1>
                 <p>SmartHome — это современная система управления умным домом, разработанная для обеспечения комфорта, безопасности и эффективности вашего жилого пространства.</p>
-                <a href="#" class="btn" onclick="showPage('login')">Попробовать демо</a>
+                <a href="{% url 'login' %}" class="btn">Попробовать демо</a>
             </div>
         </div>
 

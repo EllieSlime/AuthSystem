@@ -1,4 +1,4 @@
-{% extends "main/base.html" %}
+{% extends "core/base.html" %}
 {% block title %}Устройство - SmartHome{% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
         <div class="account-container">
             <div class="sidebar">
                 <ul class="sidebar-nav">
-                    <li><a href="#" onclick="showPage('account')"><i class="fas fa-arrow-left"></i> Назад к каталогу</a></li>
+                    <li><a href="{% url 'account' %}"><i class="fas fa-arrow-left"></i> Назад к каталогу</a></li>
                     <li><a href="#" class="active"><i class="fas fa-sliders-h"></i> Управление</a></li>
                     <li><a href="#"><i class="fas fa-history"></i> История событий</a></li>
                     <li><a href="#"><i class="fas fa-cog"></i> Настройки</a></li>

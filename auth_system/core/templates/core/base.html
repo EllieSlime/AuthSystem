@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartHome - Умный дом будущего</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path fill='%231a237e' d='M320 0c17.7 0 32 14.3 32 32V96H480c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H160c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64H288V32c0-17.7 14.3-32 32-32zM208 384c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H208zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H304zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H400zM264 256a40 40 0 1 0 -80 0 40 40 0 1 0 80 0zm152 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80zM48 224H64V416H48c-26.5 0-48-21.5-48-48V272c0-26.5 21.5-48 48-48zm544 0c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H576V224h16z'/></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -176,14 +177,9 @@
         }
 
         /* Страницы */
-        .page {
-            display: none;
+        main {
             padding: 100px 0 60px;
             min-height: 100vh;
-        }
-
-        .page.active {
-            display: block;
             animation: fadeIn 0.8s ease;
         }
 
@@ -858,27 +854,27 @@
     <!-- Навигация -->
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="#" class="logo" onclick="showPage('home')">
+            <a href="{% url 'home' %}" class="logo">
                 <i class="fas fa-home"></i> SmartHome
             </a>
             <ul class="nav-links">
-                <li><a href="#" onclick="showPage('home')"><i class="fas fa-home"></i> Главная</a></li>
-                <li><a href="#" onclick="showPage('about')"><i class="fas fa-info-circle"></i> О сервисе</a></li>
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="{% url 'about' %}"><i class="fas fa-info-circle"></i> О сервисе</a></li>
                 <li class="menu-toggle" onclick="toggleDropdown()">
                     <i class="fas fa-ellipsis-v"></i>
                 </li>
             </ul>
 
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="#" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Вход</a>
-                <a href="#" onclick="showPage('register')"><i class="fas fa-user-plus"></i> Регистрация</a>
-                <a href="#" onclick="showPage('account')"><i class="fas fa-user-circle"></i> Аккаунт</a>
-                <a href="#" onclick="showPage('device')"><i class="fas fa-lightbulb"></i> Устройство</a>
-                <a href="#" onclick="showPage('assistant')"><i class="fas fa-robot"></i> Помощник</a>
-                <a href="#" onclick="showPage('settings')"><i class="fas fa-cog"></i> Настройки</a>
-                <a href="#" onclick="showPage('admin')"><i class="fas fa-tools"></i> Админка</a>
-                <a href="#" onclick="showPage('error401')"><i class="fas fa-lock"></i> Ошибка 401</a>
-                <a href="#" onclick="showPage('error403')"><i class="fas fa-ban"></i> Ошибка 403</a>
+                <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Вход</a>
+                <a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Регистрация</a>
+                <a href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Аккаунт</a>
+                <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
+                <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
+                <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки</a>
+                <a href="{% url 'admin' %}"><i class="fas fa-tools"></i> Админка</a>
+                <a href="{% url 'error401' %}"><i class="fas fa-lock"></i> Ошибка 401</a>
+                <a href="{% url 'error403' %}"><i class="fas fa-ban"></i> Ошибка 403</a>
             </div>
         </div>
     </nav>
@@ -898,10 +894,10 @@
                 <div class="footer-section">
                     <h3>Навигация</h3>
                     <ul class="footer-links">
-                        <li><a href="#" onclick="showPage('home')">Главная</a></li>
-                        <li><a href="#" onclick="showPage('about')">О сервисе</a></li>
-                        <li><a href="#" onclick="showPage('login')">Вход</a></li>
-                        <li><a href="#" onclick="showPage('register')">Регистрация</a></li>
+                        <li><a href="{% url 'home' %}">Главная</a></li>
+                        <li><a href="{% url 'about' %}">О сервисе</a></li>
+                        <li><a href="{% url 'login' %}">Вход</a></li>
+                        <li><a href="{% url 'register' %}">Регистрация</a></li>
                     </ul>
                 </div>
 

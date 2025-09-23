@@ -1,4 +1,4 @@
-{% extends "main/base.html" %}
+{% extends "core/base.html" %}
 {% block title %}Ошибка403 - SmartHome{% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
             <i class="fas fa-ban" style="font-size: 5rem; color: var(--error); margin-bottom: 30px;"></i>
             <h2>403 Forbidden</h2>
             <p style="margin-bottom: 30px; font-size: 1.2rem;">У вас нет прав на доступ к этому разделу.</p>
-            <a href="#" class="btn" onclick="showPage('home')">Вернуться на главную</a>
+            <a href="{% url 'home' %}" class="btn">Вернуться на главную</a>
         </div>
     </div>
 </section>
