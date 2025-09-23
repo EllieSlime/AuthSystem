@@ -11,6 +11,7 @@
         <div class="account-container">
             <div class="sidebar">
                 <ul class="sidebar-nav">
+                    <li><a href="{% url 'lobby' %}"><i class="fas fa-arrow-left"></i> Выбрать лобби</a></li>
                     <li><a href="#" class="active"><i class="fas fa-th-large"></i> Каталог устройств</a></li>
                     <li><a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Умный помощник</a></li>
                     <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки профиля</a></li>
@@ -86,6 +87,21 @@
                         <div class="device-actions">
                             <a href="{% url 'device' %}" class="btn btn-small">Управлять</a>
                             <a href="#" class="btn btn-small btn-outline">Подробнее</a>
+                        </div>
+                    </div>
+                     <!-- Новая карточка "Добавить устройство" -->
+                    <div class="device-card add-device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="device-title">Добавить устройство</div>
+                        </div>
+                        <div class="device-info">
+                            Нажмите, чтобы добавить новое устройство в систему
+                        </div>
+                        <div class="device-actions">
+                            <a href="#" class="btn btn-small">Добавить</a>
                         </div>
                     </div>
                 </div>

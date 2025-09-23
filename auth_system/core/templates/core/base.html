@@ -869,7 +869,6 @@
 
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Вход</a>
-                <a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Регистрация</a>
                 <a href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Аккаунт</a>
                 <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
                 <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
@@ -877,6 +876,10 @@
                 <a href="{% url 'adminn' %}"><i class="fas fa-tools"></i> Админка</a>
                 <a href="{% url 'error401' %}"><i class="fas fa-lock"></i> Ошибка 401</a>
                 <a href="{% url 'error403' %}"><i class="fas fa-ban"></i> Ошибка 403</a>
+                <a href="{% url 'lobby' %}"><i class="fas fa-ban"></i> Лобби</a>
+                <a href="{% url 'lobby_add' %}"><i class="fas fa-ban"></i> Лобби_add</a>
+                <a href="{% url 'lobby_cre' %}"><i class="fas fa-ban"></i> Лобби_cre</a>
+                <a href="{% url 'lobby_set' %}"><i class="fas fa-ban"></i> Лобби_set</a>
             </div>
         </div>
     </nav>
@@ -899,7 +902,7 @@
                         <li><a href="{% url 'home' %}">Главная</a></li>
                         <li><a href="{% url 'about' %}">О сервисе</a></li>
                         <li><a href="{% url 'login' %}">Вход</a></li>
-                        <li><a href="{% url 'register' %}">Регистрация</a></li>
+                        <li><a href="{% url 'login' %}?tab=register">Регистрация</a></li>
                     </ul>
                 </div>
 
@@ -920,7 +923,17 @@
     </footer>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("tab") === "register") {
+                switchTab("register-tab");
+                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+                document.querySelectorAll(".tab-content").forEach(tc => tc.classList.remove("active"));
 
+                document.getElementById("register-tab").classList.add("active");
+                document.querySelector(".tabs .tab:nth-child(2)").classList.add("active");
+            }
+        });
 
         // Функция для переключения выпадающего меню
         function toggleDropdown() {
