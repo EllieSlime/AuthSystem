@@ -6,8 +6,8 @@ def about(request):
     return render(request, "core/about.html")
 def account(request):
     return render(request, "core/account.html")
-def admin(request):
-    return render(request, "core/admin.html")
+def adminn(request):
+    return render(request, "core/adminn.html")
 def assistant(request):
     return render(request, "core/assistant.html")
 def device(request):

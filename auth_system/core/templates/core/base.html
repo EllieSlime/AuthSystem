@@ -181,6 +181,8 @@
             padding: 100px 0 60px;
             min-height: 100vh;
             animation: fadeIn 0.8s ease;
+            position: relative;
+            z-index: 10;
         }
 
         /* Главная страница */
@@ -872,7 +874,7 @@
                 <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
                 <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
                 <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки</a>
-                <a href="{% url 'admin' %}"><i class="fas fa-tools"></i> Админка</a>
+                <a href="{% url 'adminn' %}"><i class="fas fa-tools"></i> Админка</a>
                 <a href="{% url 'error401' %}"><i class="fas fa-lock"></i> Ошибка 401</a>
                 <a href="{% url 'error403' %}"><i class="fas fa-ban"></i> Ошибка 403</a>
             </div>
@@ -918,25 +920,7 @@
     </footer>
 
     <script>
-        // Функция для переключения между страницами
-        function showPage(pageId) {
-            // Скрываем все страницы
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
 
-            // Показываем выбранную страницу
-            document.getElementById(pageId).classList.add('active');
-
-            // Скрываем выпадающее меню
-            document.getElementById('dropdownMenu').classList.remove('active');
-
-            // Прокручиваем к верху страницы
-            window.scrollTo(0, 0);
-
-            // Сохраняем текущую страницу в localStorage
-            localStorage.setItem('currentPage', pageId);
-        }
 
         // Функция для переключения выпадающего меню
         function toggleDropdown() {
