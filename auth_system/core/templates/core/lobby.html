@@ -1,0 +1,96 @@
+{% extends "core/base.html" %}
+{% block title %}Мои лобби - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Страница моих лобби -->
+<section class="account">
+    <div class="container">
+        <h2 class="section-title">Мои лобби</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="#" class="active"><i class="fas fa-building"></i> Выбрать лобби</a></li>
+                    <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки профиля</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <h3>Доступные лобби</h3>
+                <div class="devices-grid">
+                    <!-- Карточки лобби -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-house-user"></i>
+                            </div>
+                            <div class="device-title">Домашнее лобби</div>
+                            <div class="device-status status-online">Online</div>
+                        </div>
+                        <div class="device-info">
+                            Основное лобби • Устройств: 5 • Участников: 3
+                        </div>
+                        <div class="device-actions">
+                            <a href="{% url 'account' %}" class="btn btn-small">Войти</a>
+                            <a href="{% url 'lobby_set' %}" class="btn btn-small btn-outline">Параметры</a>
+                        </div>
+                    </div>
+
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="device-title">Офисное лобби</div>
+                            <div class="device-status status-online">Online</div>
+                        </div>
+                        <div class="device-info">
+                            Рабочее пространство • Устройств: 3 • Участников: 5
+                        </div>
+                        <div class="device-actions">
+                            <a href="{% url 'account' %}" class="btn btn-small">Войти</a>
+                            <a href="{% url 'lobby_set' %}" class="btn btn-small btn-outline">Параметры</a>
+                        </div>
+                    </div>
+
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="device-title">Загородный дом</div>
+                            <div class="device-status status-offline">Offline</div>
+                        </div>
+                        <div class="device-info">
+                            Дача • Устройств: 2 • Участников: 1
+                        </div>
+                        <div class="device-actions">
+                            <a href="{% url 'account' %}" class="btn btn-small">Войти</a>
+                            <a href="{% url 'lobby_set' %}" class="btn btn-small btn-outline">Параметры</a>
+                        </div>
+                    </div>
+
+                    <!-- Карточка для добавления/создания лобби -->
+                    <div class="device-card add-device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="device-title">Добавить лобби</div>
+                        </div>
+                        <div class="device-info">
+                            Создайте новое лобби или присоединитесь к существующему
+                        </div>
+                        <div class="device-actions">
+                            <a href="{% url 'lobby_add' %}" class="btn btn-small">Добавить</a>
+                            <a href="{% url 'lobby_cre' %}" class="btn btn-small btn-outline">Создать</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

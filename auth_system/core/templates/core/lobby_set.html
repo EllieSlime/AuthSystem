@@ -1,0 +1,113 @@
+{% extends "core/base.html" %}
+{% block title %}Параметры лобби - SmartHome{% endblock %}
+
+{% block content %}
+
+<section class="account">
+    <div class="container">
+        <h2 class="section-title">Параметры лобби</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'account' %}"><i class="fas fa-arrow-left"></i> Назад к лобби</a></li>
+                    <li><a href="{% url 'lobby' %}"><i class="fas fa-list"></i> Мои лобби</a></li>
+                    <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки профиля</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <h3>Настройки лобби: "{{ lobby.name }}"</h3>
+
+                <div class="devices-grid">
+                    <!-- Карточка основных настроек -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="device-title">Основные настройки</div>
+                        </div>
+                        <div class="device-info">
+                            Измените основные параметры вашего лобби
+                        </div>
+                        <form method="POST" class="lobby-settings-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="form-label">Название лобби</label>
+                                <input type="text" class="form-input" name="lobby_name" value="{{ lobby.name }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Новый код доступа</label>
+                                <input type="text" class="form-input" name="new_lobby_code" placeholder="Оставьте пустым, чтобы не менять" pattern="[0-9]{6}" maxlength="6">
+                                <small>Текущий код: {{ lobby.code }}</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Подтвердите текущий код</label>
+                                <input type="text" class="form-input" name="current_lobby_code" placeholder="Введите текущий код" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+
+                            <div class="device-actions">
+                                <button type="submit" class="btn btn-small">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Карточка управления доступом -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="device-title">Управление доступом</div>
+                        </div>
+                        <div class="device-info">
+                            Управление участниками лобби и их правами
+                        </div>
+                        <div class="device-actions">
+                            <a href="#" class="btn btn-small">Участники</a>
+                            <a href="#" class="btn btn-small btn-outline">Права доступа</a>
+                        </div>
+                    </div>
+
+                    <!-- Карточка действий с лобби -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-power-off"></i>
+                            </div>
+                            <div class="device-title">Состояние лобби</div>
+                        </div>
+                        <div class="device-info">
+                            Управление активностью лобби
+                        </div>
+                        <div class="device-actions">
+                            <button type="button" class="btn btn-small">Включить</button>
+                            <button type="button" class="btn btn-small btn-outline" onclick="disableLobby()">Отключить</button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка опасных действий -->
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="device-title">Опасные действия</div>
+                        </div>
+                        <div class="device-info">
+                            Действия, которые нельзя отменить
+                        </div>
+                        <div class="device-actions">
+                            <button type="button" class="btn btn-small btn-outline" onclick="deleteLobby()">Удалить лобби</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
