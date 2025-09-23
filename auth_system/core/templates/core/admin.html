@@ -1,0 +1,74 @@
+{% extends "main/base.html" %}
+{% block title %}Администратор - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Админка -->
+<section id="admin" class="page">
+    <div class="container">
+        <h2 class="section-title">Панель администратора</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="#" onclick="showPage('account')"><i class="fas fa-arrow-left"></i> Назад к каталогу</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-users"></i> Пользователи</a></li>
+                    <li><a href="#"><i class="fas fa-microchip"></i> Устройства</a></li>
+                    <li><a href="#"><i class="fas fa-user-tag"></i> Роли</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Права доступа</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 25px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                    <h3>Управление пользователями</h3>
+                    <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">Здесь вы можете управлять учетными записями пользователей системы.</p>
+
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                    <th style="padding: 15px; text-align: left;">Пользователь</th>
+                                    <th style="padding: 15px; text-align: left;">Роль</th>
+                                    <th style="padding: 15px; text-align: left;">Статус</th>
+                                    <th style="padding: 15px; text-align: left;">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <td style="padding: 15px;">Иванов Иван</td>
+                                    <td style="padding: 15px;">Администратор</td>
+                                    <td style="padding: 15px;"><span style="color: #4caf50;">Активен</span></td>
+                                    <td style="padding: 15px;">
+                                        <button class="btn btn-small" style="margin-right: 5px;">Редактировать</button>
+                                        <button class="btn btn-small btn-outline">Деактивировать</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <td style="padding: 15px;">Петрова Мария</td>
+                                    <td style="padding: 15px;">Менеджер</td>
+                                    <td style="padding: 15px;"><span style="color: #4caf50;">Активна</span></td>
+                                    <td style="padding: 15px;">
+                                        <button class="btn btn-small" style="margin-right: 5px;">Редактировать</button>
+                                        <button class="btn btn-small btn-outline">Деактивировать</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px;">Сидоров Алексей</td>
+                                    <td style="padding: 15px;">Пользователь</td>
+                                    <td style="padding: 15px;"><span style="color: #f44336;">Неактивен</span></td>
+                                    <td style="padding: 15px;">
+                                        <button class="btn btn-small" style="margin-right: 5px;">Редактировать</button>
+                                        <button class="btn btn-small btn-outline">Активировать</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

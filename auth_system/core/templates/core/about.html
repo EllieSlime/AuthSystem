@@ -1,0 +1,48 @@
+{% extends "main/base.html" %}
+{% block title %}О сервисе - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- О сервисе -->
+<section id="about" class="page">
+    <div class="container">
+        <div class="hero">
+            <div class="hero-content">
+                <h1>О сервисе SmartHome</h1>
+                <p>SmartHome — это современная система управления умным домом, разработанная для обеспечения комфорта, безопасности и эффективности вашего жилого пространства.</p>
+                <a href="#" class="btn" onclick="showPage('login')">Попробовать демо</a>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2 class="section-title">Роли и права доступа</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="feature-title">Пользователь</h3>
+                    <p class="feature-desc">Базовый доступ к управлению своими устройствами, настройкам профиля и использованию умного помощника.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="feature-title">Менеджер</h3>
+                    <p class="feature-desc">Расширенные права: управление устройствами всех членов семьи, создание сценариев для всего дома.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="feature-title">Администратор</h3>
+                    <p class="feature-desc">Полный контроль над системой: управление пользователями, устройствами, ролями и правами доступа.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

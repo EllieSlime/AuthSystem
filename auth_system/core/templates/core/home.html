@@ -1,0 +1,59 @@
+{% extends "main/base.html" %}
+{% block title %}Главная - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Главная страница -->
+<section id="home" class="page active">
+    <div class="hero">
+        <div class="container hero-content">
+            <h1>Добро пожаловать в SmartHome!</h1>
+            <p>Управляйте своим домом удобно и безопасно. Наша система объединяет все умные устройства в единую экосистему, обеспечивая комфорт, экономию и полный контроль над вашим жилым пространством.</p>
+            <div>
+                <a href="#" class="btn" onclick="showPage('login')">Войти</a>
+                <a href="#" class="btn btn-outline" onclick="showPage('register')">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="features">
+            <h2 class="section-title">Наши возможности</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="feature-title">Управление светом</h3>
+                    <p class="feature-desc">Интеллектуальное управление освещением с настройкой сценариев, расписаний и автоматизацией.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <h3 class="feature-title">Климат-контроль</h3>
+                    <p class="feature-desc">Поддержание идеальной температуры и влажности в каждом помещении с учетом ваших предпочтений.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Безопасность</h3>
+                    <p class="feature-desc">Многоуровневая система безопасности с датчиками, камерами и умными замками.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <h3 class="feature-title">Мультимедиа</h3>
+                    <p class="feature-desc">Единое управление аудио- и видео-системами по всему дому с персонализацией контента.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

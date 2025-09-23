@@ -1,0 +1,60 @@
+{% extends "main/base.html" %}
+{% block title %}Помощник - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Умный помощник -->
+<section id="assistant" class="page">
+    <div class="container">
+        <h2 class="section-title">Умный помощник</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="#" onclick="showPage('account')"><i class="fas fa-arrow-left"></i> Назад к каталогу</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-comments"></i> Чат</a></li>
+                    <li><a href="#"><i class="fas fa-history"></i> Последние команды</a></li>
+                    <li><a href="#"><i class="fas fa-list-alt"></i> Сценарии</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <div class="chat-container">
+                    <div class="chat-messages">
+                        <div class="message message-bot">
+                            <div class="message-content">
+                                Привет! Я ваш умный помощник. Чем могу помочь?
+                            </div>
+                        </div>
+                        <div class="message message-user">
+                            <div class="message-content">
+                                Включи свет в гостиной
+                            </div>
+                        </div>
+                        <div class="message message-bot">
+                            <div class="message-content">
+                                Свет в гостиной включен. Яркость установлена на 75%.
+                            </div>
+                        </div>
+                        <div class="message message-user">
+                            <div class="message-content">
+                                Установи температуру 22 градуса в спальне
+                            </div>
+                        </div>
+                        <div class="message message-bot">
+                            <div class="message-content">
+                                Температура в спальне установлена на 22°C.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="Введите сообщение или нажмите на микрофон...">
+                        <button><i class="fas fa-microphone"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

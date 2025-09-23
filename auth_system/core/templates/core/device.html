@@ -1,0 +1,96 @@
+{% extends "main/base.html" %}
+{% block title %}Устройство - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Страница устройства -->
+<section id="device" class="page">
+    <div class="container">
+        <h2 class="section-title">Умная лампа - Гостиная</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="#" onclick="showPage('account')"><i class="fas fa-arrow-left"></i> Назад к каталогу</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-sliders-h"></i> Управление</a></li>
+                    <li><a href="#"><i class="fas fa-history"></i> История событий</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Настройки</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <div class="device-controls">
+                    <div class="control-panel">
+                        <h3>Основные настройки</h3>
+
+                        <div class="control-group">
+                            <label class="control-label">Состояние</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Яркость: <span id="brightness-value">75%</span></label>
+                            <input type="range" class="slider" min="0" max="100" value="75" oninput="updateBrightness(this.value)">
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Цветовая температура</label>
+                            <input type="range" class="slider" min="2200" max="6500" value="4000" oninput="updateTemperature(this.value)">
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                <span>Тёплый</span>
+                                <span>Холодный</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <h3>Дополнительные настройки</h3>
+
+                        <div class="control-group">
+                            <label class="control-label">Расписание</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider-toggle"></span>
+                            </label>
+                            <p style="font-size: 0.9rem; margin-top: 10px; color: rgba(255,255,255,0.7);">Включить автоматическое расписание</p>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Сценарии</label>
+                            <select class="form-input">
+                                <option value="">Выберите сценарий</option>
+                                <option value="reading">Чтение</option>
+                                <option value="relax">Релакс</option>
+                                <option value="party">Вечеринка</option>
+                                <option value="night">Ночной режим</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">История событий</label>
+                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; max-height: 150px; overflow-y: auto;">
+                                <div style="margin-bottom: 10px; font-size: 0.9rem;">
+                                    <i class="fas fa-circle" style="color: #4caf50; font-size: 0.5rem; margin-right: 10px;"></i>
+                                    Включена в 18:30
+                                </div>
+                                <div style="margin-bottom: 10px; font-size: 0.9rem;">
+                                    <i class="fas fa-circle" style="color: #f44336; font-size: 0.5rem; margin-right: 10px;"></i>
+                                    Выключена в 23:45
+                                </div>
+                                <div style="margin-bottom: 10px; font-size: 0.9rem;">
+                                    <i class="fas fa-adjust" style="color: #ff9800; font-size: 0.5rem; margin-right: 10px;"></i>
+                                    Яркость изменена на 50% в 22:00
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
