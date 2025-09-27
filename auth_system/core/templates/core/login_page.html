@@ -1,0 +1,114 @@
+{% extends "core/base.html" %}
+{% block title %}Вход - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Страница входа -->
+<section class="login">
+    <div class="container">
+        <div class="form-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login-tab')">Войти</div>
+                <div class="tab" onclick="switchTab('register-tab')">Регистрация</div>
+            </div>
+
+            <div id="login-tab" class="tab-content {% if active_tab|default:'login' == 'login' %}active{% endif %}">
+                <h3 class="form-title">Вход в систему</h3>
+                <form id="login-form" method="post" action="{% url 'login' %}" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email"
+                               name="email"
+                               class="form-input"
+                               placeholder="Ваш email"
+                               value="{{ login_form.email.value|default:'' }}">
+                        {% if login_form.email.errors %}
+                            <div class="error">{{ login_form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password"
+                               name="password"
+                               class="form-input"
+                               placeholder="Ваш пароль">
+                        {% if login_form.password.errors %}
+                            <div class="error">{{ login_form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox"
+                               name="remember_me"
+                               class="form-check-input"
+                               id="remember_me"
+                               {% if login_form.remember_me.value %}checked{% endif %}>
+                        <label for="remember_me">Запомнить меня</label>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;">Войти</button>
+                </form>
+            </div>
+
+            <div id="register-tab" class="tab-content {% if active_tab == 'register' %}active{% endif %}">
+                <h3 class="form-title">Регистрация</h3>
+                <form id="register-form" method="post" action="{% url 'register' %}" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label class="form-label">ФИО</label>
+                        <input type="text"
+                               name="username"
+                               class="form-input"
+                               placeholder="Ваше полное имя"
+                               value="{{ register_form.username.value|default:'' }}">
+                        {% if register_form.username.errors %}
+                            <div class="error">{{ register_form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email"
+                               name="email"
+                               class="form-input"
+                               placeholder="Ваш email"
+                               value="{{ register_form.email.value|default:'' }}">
+                        {% if register_form.email.errors %}
+                            <div class="error">{{ register_form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password"
+                               name="password"
+                               class="form-input"
+                               placeholder="Придумайте пароль">
+                        {% if register_form.password.errors %}
+                            <div class="error">{{ register_form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Повторите пароль</label>
+                        <input type="password"
+                               name="password2"
+                               class="form-input"
+                               placeholder="Повторите пароль">
+                        {% if register_form.password2.errors %}
+                            <div class="error">{{ register_form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;">Зарегистрироваться</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

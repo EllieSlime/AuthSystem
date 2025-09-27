@@ -868,7 +868,7 @@
             </ul>
 
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Вход</a>
+                <a href="{% url 'login_page' %}"><i class="fas fa-sign-in-alt"></i> Вход</a>
                 <a href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Аккаунт</a>
                 <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
                 <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
@@ -883,6 +883,14 @@
             </div>
         </div>
     </nav>
+
+   {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     <main>
         {% block content %}{% endblock %}
@@ -901,8 +909,8 @@
                     <ul class="footer-links">
                         <li><a href="{% url 'home' %}">Главная</a></li>
                         <li><a href="{% url 'about' %}">О сервисе</a></li>
-                        <li><a href="{% url 'login' %}">Вход</a></li>
-                        <li><a href="{% url 'login' %}?tab=register">Регистрация</a></li>
+                        <li><a href="{% url 'login_page' %}">Вход</a></li>
+                        <li><a href="{% url 'login_page' %}?tab=register">Регистрация</a></li>
                     </ul>
                 </div>
 
@@ -980,23 +988,70 @@
             console.log('Температура света установлена на: ' + value + 'K');
         }
 
-        // Обработчики форм
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Вход выполнен! Перенаправляем в личный кабинет...');
-            showPage('account');
-        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginForm = document.getElementById("login-form");
+            const registerForm = document.getElementById("register-form");
 
-        document.getElementById('register-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Регистрация завершена! Выполняется вход...');
-            showPage('account');
-        });
+            // Хелпер для показа сообщений
+            function showMessage(form, text, type = "info") {
+                let msgBox = form.querySelector(".form-message");
+                if (!msgBox) {
+                    msgBox = document.createElement("div");
+                    msgBox.className = "form-message";
+                    form.appendChild(msgBox);
+                }
+                msgBox.textContent = text;
+                msgBox.style.color = type === "error" ? "#f44336" : "#4caf50";
+                msgBox.style.marginTop = "10px";
+                msgBox.style.fontWeight = "500";
+            }
 
-        document.getElementById('register-form-single').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Регистрация завершена! Выполняется вход...');
-            showPage('account');
+            // Проверка на пустые поля
+            function hasEmptyFields(form) {
+                const inputs = form.querySelectorAll("input[required], input[type='text'], input[type='email'], input[type='password']");
+                for (let input of inputs) {
+                    if (input.value.trim() === "") {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Обработчик входа
+            if (loginForm) {
+                loginForm.addEventListener("submit", function (e) {
+                    if (hasEmptyFields(loginForm)) {
+                        e.preventDefault();
+                        showMessage(loginForm, "Заполните все поля!", "error");
+                        return;
+                    }
+                    showMessage(loginForm, "Вход выполняется...", "info");
+                    // дальше Django проверит данные
+                });
+            }
+
+            // Обработчик регистрации
+            if (registerForm) {
+                registerForm.addEventListener("submit", function (e) {
+                    if (hasEmptyFields(registerForm)) {
+                        e.preventDefault();
+                        showMessage(registerForm, "Заполните все поля!", "error");
+                        return;
+                    }
+                    /*
+                    const pass1 = registerForm.querySelector('input[name="password"]').value;
+                    const pass2 = registerForm.querySelector('input[name="password2"]').value;
+
+                    if (pass1 !== pass2) {
+                        e.preventDefault();
+                        showMessage(registerForm, "Пароли не совпадают!", "error");
+                        return;
+                    }
+                    */
+
+                    showMessage(registerForm, "Регистрация выполняется...", "info");
+                });
+            }
         });
 
         // Загрузка сохраненной страницы при загрузке
