@@ -112,7 +112,7 @@
             <div class="account-content">
 
                 <!-- Таб редактирования профиля -->
-                <div id="edit-tab" class="tab-content active">
+                <div id="edit-tab" class="tab-content {% if active_tab == 'edit' %}active{% endif %}">
                     <div class="profile-form-wrapper">
                         <form method="post" action="{% url 'settings' %}" class="profile-form-container">
                             {% csrf_token %}
@@ -185,7 +185,7 @@
                 </div>
 
                 <!-- Таб смены пароля -->
-                <div id="password-tab" class="tab-content">
+                <div id="password-tab" class="tab-content {% if active_tab == 'password' %}active{% endif %}">
                     <div class="devices-grid">
                         <div class="device-card settings-card">
                             <div class="device-header">
@@ -383,40 +383,17 @@
     </div>
 </section>
 
-{% if active_tab == "password" %}
-    <script>
-        {% if show_new_password_form %}
-            document.addEventListener("DOMContentLoaded", function() {
-                document.getElementById("current-password-form").style.display = "none";
-                document.getElementById("new-password-form").style.display = "block";
-            });
-        {% endif %}
-    </script>
+{% if active_tab %}
+<script>
+    // Пробрасываем переменные от сервера в JS
+    window.ACTIVE_TAB = "{{ active_tab }}";
+    {% if show_new_password_form %}
+    window.PASSWORD_STEP = "new";
+    {% endif %}
+</script>
 {% endif %}
 
 <script>
-// Переключение табов
-document.addEventListener('DOMContentLoaded', function() {
-    const tabContents = document.querySelectorAll('.tab-content');
-    const sidebarLinks = document.querySelectorAll('.sidebar-nav a[data-tab]');
-
-    function switchTab(tabId) {
-        tabContents.forEach(content => content.classList.remove('active'));
-        sidebarLinks.forEach(link => link.classList.remove('active'));
-
-        document.getElementById(tabId).classList.add('active');
-        document.querySelector(`.sidebar-nav a[data-tab="${tabId}"]`).classList.add('active');
-    }
-
-    sidebarLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const tabId = this.getAttribute('data-tab');
-            switchTab(tabId);
-        });
-    });
-});
-
 document.addEventListener('DOMContentLoaded', function () {
     const tabContents = document.querySelectorAll('.tab-content');
     const sidebarLinks = document.querySelectorAll('.sidebar-nav a[data-tab]');
@@ -424,13 +401,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function switchTab(tabId) {
         tabContents.forEach(el => el.classList.remove('active'));
         sidebarLinks.forEach(l => l.classList.remove('active'));
+
         const content = document.getElementById(tabId);
         if (content) content.classList.add('active');
+
         const link = document.querySelector(`.sidebar-nav a[data-tab="${tabId}"]`);
         if (link) link.classList.add('active');
     }
 
-    // обработчики боковой панели
+    // Клики по боковому меню
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function (e) {
             e.preventDefault();
@@ -439,27 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // активируем таб, который передал сервер (window.ACTIVE_TAB)
-    if (window.ACTIVE_TAB) {
-        // допускаем значения 'edit'|'password' или конкретные id 'edit-tab'
-        let tabId = window.ACTIVE_TAB;
-        if (tabId === 'edit') tabId = 'edit-tab';
-        if (tabId === 'password') tabId = 'password-tab';
-        if (document.getElementById(tabId)) {
-            switchTab(tabId);
-        }
-    }
-
-    // placeholder behaviour — убираем placeholder при фокусе и возвращаем при blur если пусто
-    document.querySelectorAll('.form-input').forEach(input => {
-        const original = input.getAttribute('placeholder') || '';
-        input.addEventListener('focus', () => input.setAttribute('placeholder', ''));
-        input.addEventListener('blur', () => {
-            if (!input.value.trim() && original) input.setAttribute('placeholder', original);
-        });
-    });
-
-    // переключение форм смены пароля (функции доступны глобально для onclick)
+    // --- Смена пароля ---
     const currentWrap = document.getElementById('current-password-form');
     const newWrap = document.getElementById('new-password-form');
 
@@ -472,11 +431,29 @@ document.addEventListener('DOMContentLoaded', function () {
         if (newWrap) newWrap.style.display = 'none';
     };
 
-    // Опционально: если сервер пометил, что нужно показать новый пароль (например active_tab == 'password' и step == 'new'),
-    // можно автоматически вызвать showNewPasswordForm(); (тогда сервер должен передать window.PASSWORD_STEP)
-    if (window.PASSWORD_STEP === 'new') {
-        window.showNewPasswordForm();
+    // --- Инициализация активного таба ---
+    let tabId = "edit-tab"; // по умолчанию первый таб
+    if (window.ACTIVE_TAB) {
+        if (window.ACTIVE_TAB === "edit") tabId = "edit-tab";
+        if (window.ACTIVE_TAB === "password") tabId = "password-tab";
     }
+    switchTab(tabId);
+
+    // Если сервер указал, что нужно сразу показать новый пароль
+    if (window.PASSWORD_STEP === "new") {
+        window.showNewPasswordForm();
+    } else {
+        window.showCurrentPasswordForm();
+    }
+
+    // placeholder behaviour
+    document.querySelectorAll('.form-input').forEach(input => {
+        const original = input.getAttribute('placeholder') || '';
+        input.addEventListener('focus', () => input.setAttribute('placeholder', ''));
+        input.addEventListener('blur', () => {
+            if (!input.value.trim() && original) input.setAttribute('placeholder', original);
+        });
+    });
 });
 </script>
 

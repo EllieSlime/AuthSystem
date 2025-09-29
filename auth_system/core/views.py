@@ -130,22 +130,55 @@ def logout_view(request):
 
 @login_required
 def settings_view(request):
+    profile_form = ProfileUpdateForm(instance=request.user)
+    password_form = PasswordChangeCustomForm(user=request.user)
+
+    active_tab = "profile"  # по умолчанию открываем профиль
+
     if request.method == "POST":
-        profile_form = ProfileUpdateForm(request.POST, instance=request.user)
-        password_form = PasswordChangeCustomForm(user=request.user)
+        form_type = request.POST.get("form_type")
 
-        if profile_form.is_valid():
-            profile_form.save()
-            messages.success(request, "Данные профиля обновлены.")
-            return redirect("settings")
+        if form_type == "profile":
+            profile_form = ProfileUpdateForm(request.POST, instance=request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Данные профиля обновлены.")
+            else:
+                messages.error(request, "Ошибка при обновлении профиля.")
+            active_tab = "profile"
 
-    else:
-        profile_form = ProfileUpdateForm(instance=request.user)
-        password_form = PasswordChangeCustomForm(user=request.user)
+        elif form_type == "password_step1":
+            # Проверяем текущий пароль
+            current_password = request.POST.get("current_password")
+            if request.user.check_password(current_password):
+                messages.info(request, "Пароль верный, введите новый.")
+                active_tab = "password"
+                return render(request, "core/settings_page.html", {
+                    "profile_form": profile_form,
+                    "password_form": password_form,
+                    "show_new_password_form": True,
+                    "active_tab": active_tab,
+                })
+            else:
+                messages.error(request, "Неверный текущий пароль.")
+                active_tab = "password"
+
+        elif form_type == "password_step2":
+            password_form = PasswordChangeCustomForm(request.user, request.POST)
+            if password_form.is_valid():
+                new_password = password_form.cleaned_data["new_password"]
+                request.user.set_password(new_password)
+                request.user.save()
+                update_session_auth_hash(request, request.user)
+                messages.success(request, "Пароль успешно изменён.")
+            else:
+                messages.error(request, "Ошибка при смене пароля.")
+            active_tab = "password"
 
     return render(request, "core/settings_page.html", {
         "profile_form": profile_form,
         "password_form": password_form,
+        "active_tab": active_tab,
     })
 
 @login_required

@@ -194,16 +194,19 @@ class ProfileUpdateForm(forms.ModelForm):
 class PasswordChangeCustomForm(forms.Form):
     current_password = forms.CharField(
         label="Текущий пароль",
-        widget=forms.PasswordInput(attrs={"class": "form-input"})
+        widget=forms.PasswordInput(attrs={"class": "form-input"}),
+        error_messages={"required": "Введите текущий пароль"}
     )
     new_password = forms.CharField(
         label="Новый пароль",
         widget=forms.PasswordInput(attrs={"class": "form-input"}),
-        validators=[validate_password]
+        validators=[validate_password],
+        error_messages={"required": "Введите новый пароль"}
     )
     confirm_password = forms.CharField(
         label="Подтверждение нового пароля",
-        widget=forms.PasswordInput(attrs={"class": "form-input"})
+        widget=forms.PasswordInput(attrs={"class": "form-input"}),
+        error_messages={"required": "Подтвердите новый пароль"}
     )
 
     def __init__(self, user, *args, **kwargs):
