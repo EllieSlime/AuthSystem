@@ -1,5 +1,7 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 
@@ -154,49 +156,39 @@ class ProfileUpdateForm(forms.ModelForm):
         label="Телефон",
         widget=forms.TextInput(attrs={"class": "form-input"})
     )
-
-    class Meta:
-        model = User
-        fields = ("email",)
-        widgets = {"email": forms.EmailInput(attrs={"class": "form-input"})}
-        labels = {"email": "Email"}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        instance = kwargs.get("instance") or getattr(self, "instance", None)
-
-        if instance and instance.pk:
-            # подставляем в initial реальные значения
-            self.fields["full_name"].initial = getattr(instance, "first_name", "")
-            self.fields["email"].initial = getattr(instance, "email", "")
-            if hasattr(instance, "phone"):
-                self.fields["phone"].initial = getattr(instance, "phone", "")
-
-    def clean_email(self):
-        email = self.cleaned_data.get("email")
-        user_id = self.instance.id if self.instance else None
-        if User.objects.exclude(id=user_id).filter(email=email).exists():
-            raise forms.ValidationError("Этот email уже используется другим пользователем.")
-        return email
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        # сохраняем full_name → first_name
-        user.first_name = self.cleaned_data.get("full_name", "")
-        if hasattr(user, "phone"):
-            user.phone = self.cleaned_data.get("phone", "")
-        if commit:
-            user.save()
-        return user
-
-
-class AddressUpdateForm(forms.Form):
     address = forms.CharField(
         max_length=255,
         required=False,
         label="Адрес",
         widget=forms.TextInput(attrs={"class": "form-input"})
     )
+
+    class Meta:
+        model = User
+        fields = ("email",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get("instance") or getattr(self, "instance", None)
+
+        if instance and instance.pk:
+            self.fields["full_name"].initial = getattr(instance, "first_name", "")
+            self.fields["email"].initial = getattr(instance, "email", "")
+            if hasattr(instance, "phone"):
+                self.fields["phone"].initial = getattr(instance, "phone", "")
+            if hasattr(instance, "address"):
+                self.fields["address"].initial = getattr(instance, "address", "")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.first_name = self.cleaned_data.get("full_name", "")
+        if hasattr(user, "phone"):
+            user.phone = self.cleaned_data.get("phone", "")
+        if hasattr(user, "address"):
+            user.address = self.cleaned_data.get("address", "")
+        if commit:
+            user.save()
+        return user
 
 
 class PasswordChangeCustomForm(forms.Form):

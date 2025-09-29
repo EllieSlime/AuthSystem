@@ -2,15 +2,16 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, LoginForm, ProfileUpdateForm, AddressUpdateForm
+from .forms import RegisterForm, LoginForm, ProfileUpdateForm
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import (
     ProfileUpdateForm,
-    AddressUpdateForm,
     PasswordChangeCustomForm,
 )
 
@@ -129,57 +130,22 @@ def logout_view(request):
 
 @login_required
 def settings_view(request):
-    # для адреса используем initial, так как это не поле User по умолчанию
-    address_initial = {"address": getattr(request.user, "address", "")}
-
     if request.method == "POST":
-        form_type = request.POST.get("form_type", "profile")
+        profile_form = ProfileUpdateForm(request.POST, instance=request.user)
+        password_form = PasswordChangeCustomForm(user=request.user)
 
-        if form_type == "profile":
-            profile_form = ProfileUpdateForm(request.POST, instance=request.user)
-            address_form = AddressUpdateForm(initial=address_initial)
-            password_form = PasswordChangeCustomForm(user=request.user)
-            if profile_form.is_valid():
-                profile_form.save()
-                messages.success(request, "Данные профиля обновлены.")
-                return redirect("settings")
+        if profile_form.is_valid():
+            profile_form.save()
+            messages.success(request, "Данные профиля обновлены.")
+            return redirect("settings")
 
-        elif form_type == "address":
-            profile_form = ProfileUpdateForm(instance=request.user)
-            address_form = AddressUpdateForm(request.POST)
-            password_form = PasswordChangeCustomForm(user=request.user)
-            if address_form.is_valid():
-                request.user.address = address_form.cleaned_data.get("address", "")
-                request.user.save()
-                messages.success(request, "Адрес обновлён.")
-                return redirect("settings")
-
-        elif form_type == "password":
-            profile_form = ProfileUpdateForm(instance=request.user)
-            address_form = AddressUpdateForm(initial=address_initial)
-            password_form = PasswordChangeCustomForm(request.user, request.POST)
-            if password_form.is_valid():
-                request.user.set_password(password_form.cleaned_data["new_password"])
-                request.user.save()
-                update_session_auth_hash(request, request.user)
-                messages.success(request, "Пароль успешно изменён.")
-                return redirect("settings")
-
-        else:
-            profile_form = ProfileUpdateForm(request.POST, instance=request.user)
-            address_form = AddressUpdateForm(request.POST)
-            password_form = PasswordChangeCustomForm(request.user, request.POST)
-
-    else:  # GET-запрос
-        profile_form = ProfileUpdateForm(instance=request.user)   # 🔹 без initial
-        address_form = AddressUpdateForm(initial=address_initial)
+    else:
+        profile_form = ProfileUpdateForm(instance=request.user)
         password_form = PasswordChangeCustomForm(user=request.user)
 
     return render(request, "core/settings_page.html", {
         "profile_form": profile_form,
-        "address_form": address_form,
         "password_form": password_form,
-        "active_tab": request.POST.get("form_type", "edit-tab"),
     })
 
 @login_required
@@ -199,7 +165,7 @@ def update_profile(request):
     return redirect("settings")
 
 
-@login_required
+'''@login_required
 def update_address(request):
     """Обновление адреса"""
     if request.method == "POST":
@@ -211,7 +177,7 @@ def update_address(request):
             messages.success(request, "Адрес обновлен.")
         else:
             messages.error(request, "Ошибка при обновлении адреса.")
-    return redirect("settings")
+    return redirect("settings")'''
 
 
 @login_required

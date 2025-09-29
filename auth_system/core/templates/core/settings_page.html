@@ -3,6 +3,26 @@
 
 {% block content %}
 
+<style>
+.profile-form-container {
+    max-width: 1000px; /* ровно в 2 раза больше */
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* сетка для двух колонок */
+.profile-form-container .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+</style>
+
 <!-- Настройки профиля -->
 <section class="settings">
     <div class="container">
@@ -31,17 +51,24 @@
                                 </div>
                                 <div class="device-title">Основные данные</div>
                             </div>
-                            <form method="post" action="{% url 'settings' %}">
+                            <form method="post" action="{% url 'settings' %}"  class="profile-form-container">
                                 {% csrf_token %}
                                 <input type="hidden" name="form_type" value="profile">
-                                <div class="device-info">
+
+                                <div class="form-header">
+                                    <h2>Редактирование профиля</h2>
+                                    <hr class="form-divider">
+                                </div>
+
+                                <div class="form-grid">
+                                    <!-- первая строка -->
                                     <div class="form-group">
                                         <label class="form-label">ФИО</label>
                                         <input type="text"
                                                name="full_name"
                                                class="form-input"
-                                               value="{{ profile_form.full_name.value|default:'' }}"
-                                               placeholder="{% if not profile_form.full_name.value %}Ваше полное имя{% endif %}"
+                                               value="{{ profile_form.full_name.value|default:profile_form.full_name.initial }}"
+                                               placeholder="{% if not profile_form.full_name.value and not profile_form.full_name.initial %}Ваше полное имя{% endif %}"
                                                required>
                                         {% if profile_form.full_name.errors %}
                                             <div class="error">{{ profile_form.full_name.errors }}</div>
@@ -53,58 +80,45 @@
                                         <input type="email"
                                                name="email"
                                                class="form-input"
-                                               value="{{ profile_form.email.value|default:'' }}"
-                                               placeholder="{% if not profile_form.email.value %}Ваш email{% endif %}"
+                                               value="{{ profile_form.email.value|default:profile_form.email.initial }}"
+                                               placeholder="{% if not profile_form.email.value and not profile_form.email.initial %}Ваш email{% endif %}"
                                                required>
                                         {% if profile_form.email.errors %}
                                             <div class="error">{{ profile_form.email.errors }}</div>
                                         {% endif %}
                                     </div>
 
+                                    <!-- вторая строка -->
                                     <div class="form-group">
                                         <label class="form-label">Телефон</label>
                                         <input type="tel"
                                                name="phone"
                                                class="form-input"
-                                               value="{{ profile_form.phone.value|default:'' }}"
-                                               placeholder="{% if not profile_form.phone.value %}+7 (___) ___-__-__{% endif %}">
+                                               value="{{ profile_form.phone.value|default:profile_form.phone.initial }}"
+                                               placeholder="{% if not profile_form.phone.value and not profile_form.phone.initial %}+7 (___) ___-__-__{% endif %}">
                                         {% if profile_form.phone.errors %}
                                             <div class="error">{{ profile_form.phone.errors }}</div>
                                         {% endif %}
                                     </div>
-                                </div>
-                                <div class="device-actions">
-                                    <button type="submit" class="btn btn-small">Сохранить изменения</button>
-                                </div>
-                            </form>
-                        </div>
 
-                        <div class="device-card settings-card">
-                            <div class="device-header">
-                                <div class="device-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div class="device-title">Адрес</div>
-                            </div>
-                            <form method="post" action="{% url 'settings' %}">
-                                {% csrf_token %}
-                                <div class="device-info">
                                     <div class="form-group">
                                         <label class="form-label">Адрес</label>
                                         <input type="text"
                                                name="address"
                                                class="form-input"
-                                               value="{{ address_form.address.value|default:'' }}"
-                                               {% if not address_form.address.value %}placeholder="Введите ваш адрес"{% endif %}>
-                                        {% if address_form.address.errors %}
-                                            <div class="error">{{ address_form.address.errors }}</div>
+                                               value="{{ profile_form.address.value|default:profile_form.address.initial }}"
+                                               placeholder="{% if not profile_form.address.value and not profile_form.address.initial %}Введите ваш адрес{% endif %}">
+                                        {% if profile_form.address.errors %}
+                                            <div class="error">{{ profile_form.address.errors }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="device-actions">
-                                    <button type="submit" class="btn btn-small">Обновить адрес</button>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-small">Сохранить изменения</button>
                                 </div>
                             </form>
+
                         </div>
                     </div>
                 </div>
