@@ -61,12 +61,12 @@
                     <div class="form-group">
                         <label class="form-label">ФИО</label>
                         <input type="text"
-                               name="username"
+                               name="full_name"
                                class="form-input"
                                placeholder="Ваше полное имя"
-                               value="{{ register_form.username.value|default:'' }}">
-                        {% if register_form.username.errors %}
-                            <div class="error">{{ register_form.username.errors }}</div>
+                               value="{{ register_form.full_name.value|default:'' }}">
+                        {% if register_form.full_name.errors %}
+                            <div class="error">{{ register_form.full_name.errors }}</div>
                         {% endif %}
                     </div>
 

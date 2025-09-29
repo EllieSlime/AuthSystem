@@ -872,7 +872,7 @@
                 <a href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Аккаунт</a>
                 <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
                 <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
-                <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки</a>
+                <a href="{% url 'settings_page' %}"><i class="fas fa-cog"></i> Настройки</a>
                 <a href="{% url 'adminn' %}"><i class="fas fa-tools"></i> Админка</a>
                 <a href="{% url 'error401' %}"><i class="fas fa-lock"></i> Ошибка 401</a>
                 <a href="{% url 'error403' %}"><i class="fas fa-ban"></i> Ошибка 403</a>
@@ -909,8 +909,12 @@
                     <ul class="footer-links">
                         <li><a href="{% url 'home' %}">Главная</a></li>
                         <li><a href="{% url 'about' %}">О сервисе</a></li>
-                        <li><a href="{% url 'login_page' %}">Вход</a></li>
-                        <li><a href="{% url 'login_page' %}?tab=register">Регистрация</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'logout' %}">Выйти</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login_page' %}">Вход</a></li>
+                            <li><a href="{% url 'login_page' %}?tab=register">Регистрация</a></li>
+                        {% endif %}
                     </ul>
                 </div>
 
@@ -925,7 +929,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2023 SmartHome. Все права защищены.</p>
+                <p>&copy; 2025 SmartHome. Все права защищены.</p>
             </div>
         </div>
     </footer>
@@ -961,20 +965,20 @@
         // Переключение между вкладками входа и регистрации
         function switchTab(tabId) {
             // Скрываем все вкладки
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
             // Убираем активный класс со всех табов
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
             // Показываем выбранную вкладку
             document.getElementById(tabId).classList.add('active');
 
             // Делаем активной соответствующую кнопку таба
-            event.target.classList.add('active');
+            if (tabId === 'login-tab') {
+                document.querySelector(".tabs .tab:nth-child(1)").classList.add("active");
+            } else if (tabId === 'register-tab') {
+                document.querySelector(".tabs .tab:nth-child(2)").classList.add("active");
+            }
         }
 
         // Обновление значения яркости

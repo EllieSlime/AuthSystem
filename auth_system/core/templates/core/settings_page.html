@@ -1,0 +1,390 @@
+{% extends "core/base.html" %}
+{% block title %}Настройки - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Настройки профиля -->
+<section class="settings">
+    <div class="container">
+        <h2 class="section-title">Настройки профиля</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="{{ request.META.HTTP_REFERER|default:'/' }}"><i class="fas fa-arrow-left"></i> Назад</a></li>
+                    <li><a href="#" class="active" data-tab="edit-tab"><i class="fas fa-user-edit"></i> Редактирование</a></li>
+                    <li><a href="#" data-tab="password-tab"><i class="fas fa-key"></i> Смена пароля</a></li>
+                    <li><a href="#" data-tab="family-tab"><i class="fas fa-users"></i> Семейные аккаунты</a></li>
+                    <li><a href="#" data-tab="system-tab"><i class="fas fa-cog"></i> Настройки системы</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+
+                <!-- Таб редактирования профиля -->
+                <div id="edit-tab" class="tab-content active">
+                    <div class="devices-grid">
+                        <div class="device-card settings-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-user-edit"></i>
+                                </div>
+                                <div class="device-title">Основные данные</div>
+                            </div>
+                            <form method="post" action="{% url 'settings' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" value="profile">
+                                <div class="device-info">
+                                    <div class="form-group">
+                                        <label class="form-label">ФИО</label>
+                                        <input type="text"
+                                               name="full_name"
+                                               class="form-input"
+                                               value="{{ profile_form.full_name.value|default:'' }}"
+                                               placeholder="{% if not profile_form.full_name.value %}Ваше полное имя{% endif %}"
+                                               required>
+                                        {% if profile_form.full_name.errors %}
+                                            <div class="error">{{ profile_form.full_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input type="email"
+                                               name="email"
+                                               class="form-input"
+                                               value="{{ profile_form.email.value|default:'' }}"
+                                               placeholder="{% if not profile_form.email.value %}Ваш email{% endif %}"
+                                               required>
+                                        {% if profile_form.email.errors %}
+                                            <div class="error">{{ profile_form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Телефон</label>
+                                        <input type="tel"
+                                               name="phone"
+                                               class="form-input"
+                                               value="{{ profile_form.phone.value|default:'' }}"
+                                               placeholder="{% if not profile_form.phone.value %}+7 (___) ___-__-__{% endif %}">
+                                        {% if profile_form.phone.errors %}
+                                            <div class="error">{{ profile_form.phone.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button type="submit" class="btn btn-small">Сохранить изменения</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="device-card settings-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="device-title">Адрес</div>
+                            </div>
+                            <form method="post" action="{% url 'settings' %}">
+                                {% csrf_token %}
+                                <div class="device-info">
+                                    <div class="form-group">
+                                        <label class="form-label">Адрес</label>
+                                        <input type="text"
+                                               name="address"
+                                               class="form-input"
+                                               value="{{ address_form.address.value|default:'' }}"
+                                               {% if not address_form.address.value %}placeholder="Введите ваш адрес"{% endif %}>
+                                        {% if address_form.address.errors %}
+                                            <div class="error">{{ address_form.address.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button type="submit" class="btn btn-small">Обновить адрес</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Таб смены пароля -->
+                <div id="password-tab" class="tab-content">
+                    <div class="devices-grid">
+                        <div class="device-card settings-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div class="device-title">Смена пароля</div>
+                            </div>
+
+                            <div id="current-password-form">
+                                <form method="post" action="{% url 'settings' %}">
+                                    {% csrf_token %}
+                                    <div class="device-info">
+                                        <div class="form-group">
+                                            <label class="form-label">Текущий пароль</label>
+                                            <input type="password"
+                                                   name="current_password"
+                                                   class="form-input"
+                                                   placeholder="Введите текущий пароль"
+                                                   required>
+                                            {% if password_form.current_password.errors %}
+                                                <div class="error">{{ password_form.current_password.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="device-actions">
+                                        <button type="submit" class="btn btn-small">Продолжить</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="new-password-form" style="display: none;">
+                                <form method="post" action="{% url 'settings' %}">
+                                    {% csrf_token %}
+                                    <div class="device-info">
+                                        <div class="form-group">
+                                            <label class="form-label">Новый пароль</label>
+                                            <input type="password"
+                                                   name="new_password"
+                                                   class="form-input"
+                                                   placeholder="Введите новый пароль"
+                                                   required>
+                                            {% if password_form.new_password.errors %}
+                                                <div class="error">{{ password_form.new_password.errors }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Повторите новый пароль</label>
+                                            <input type="password"
+                                                   name="confirm_password"
+                                                   class="form-input"
+                                                   placeholder="Повторите новый пароль"
+                                                   required>
+                                            {% if password_form.confirm_password.errors %}
+                                                <div class="error">{{ password_form.confirm_password.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="device-actions">
+                                        <button type="button" class="btn btn-small btn-outline" onclick="showCurrentPasswordForm()">Назад</button>
+                                        <button type="submit" class="btn btn-small">Изменить пароль</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Остальные табы без изменений -->
+                <div id="family-tab" class="tab-content">
+                    <div class="devices-grid">
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="device-title">Добавить члена семьи</div>
+                            </div>
+                            <div class="device-info">
+                                Пригласите нового участника в ваше лобби по email
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Пригласить</button>
+                            </div>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-user-friends"></i>
+                                </div>
+                                <div class="device-title">Управление доступом</div>
+                            </div>
+                            <div class="device-info">
+                                Настройте права доступа для участников вашего лобби
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Настроить</button>
+                            </div>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div class="device-title">Список участников</div>
+                            </div>
+                            <div class="device-info">
+                                Просмотр и управление текущими участниками лобби
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Просмотреть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="system-tab" class="tab-content">
+                    <div class="devices-grid">
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div class="device-title">Уведомления</div>
+                                <div class="device-status status-online">Вкл</div>
+                            </div>
+                            <div class="device-info">
+                                Управление уведомлениями от системы
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Настроить</button>
+                            </div>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-moon"></i>
+                                </div>
+                                <div class="device-title">Тёмная тема</div>
+                                <div class="device-status status-online">Вкл</div>
+                            </div>
+                            <div class="device-info">
+                                Включение/отключение тёмной темы интерфейса
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Переключить</button>
+                            </div>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-language"></i>
+                                </div>
+                                <div class="device-title">Язык интерфейса</div>
+                                <div class="device-status status-online">Русский</div>
+                            </div>
+                            <div class="device-info">
+                                Выбор языка интерфейса системы
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Изменить</button>
+                            </div>
+                        </div>
+
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="device-title">Резервное копирование</div>
+                            </div>
+                            <div class="device-info">
+                                Создание резервной копии данных системы
+                            </div>
+                            <div class="device-actions">
+                                <button class="btn btn-small">Создать копию</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Переключение табов
+document.addEventListener('DOMContentLoaded', function() {
+    const tabContents = document.querySelectorAll('.tab-content');
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a[data-tab]');
+
+    function switchTab(tabId) {
+        tabContents.forEach(content => content.classList.remove('active'));
+        sidebarLinks.forEach(link => link.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`.sidebar-nav a[data-tab="${tabId}"]`).classList.add('active');
+    }
+
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabId = this.getAttribute('data-tab');
+            switchTab(tabId);
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const tabContents = document.querySelectorAll('.tab-content');
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a[data-tab]');
+
+    function switchTab(tabId) {
+        tabContents.forEach(el => el.classList.remove('active'));
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        const content = document.getElementById(tabId);
+        if (content) content.classList.add('active');
+        const link = document.querySelector(`.sidebar-nav a[data-tab="${tabId}"]`);
+        if (link) link.classList.add('active');
+    }
+
+    // обработчики боковой панели
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tabId = this.getAttribute('data-tab');
+            switchTab(tabId);
+        });
+    });
+
+    // активируем таб, который передал сервер (window.ACTIVE_TAB)
+    if (window.ACTIVE_TAB) {
+        // допускаем значения 'edit'|'password' или конкретные id 'edit-tab'
+        let tabId = window.ACTIVE_TAB;
+        if (tabId === 'edit') tabId = 'edit-tab';
+        if (tabId === 'password') tabId = 'password-tab';
+        if (document.getElementById(tabId)) {
+            switchTab(tabId);
+        }
+    }
+
+    // placeholder behaviour — убираем placeholder при фокусе и возвращаем при blur если пусто
+    document.querySelectorAll('.form-input').forEach(input => {
+        const original = input.getAttribute('placeholder') || '';
+        input.addEventListener('focus', () => input.setAttribute('placeholder', ''));
+        input.addEventListener('blur', () => {
+            if (!input.value.trim() && original) input.setAttribute('placeholder', original);
+        });
+    });
+
+    // переключение форм смены пароля (функции доступны глобально для onclick)
+    const currentWrap = document.getElementById('current-password-form');
+    const newWrap = document.getElementById('new-password-form');
+
+    window.showNewPasswordForm = function () {
+        if (currentWrap) currentWrap.style.display = 'none';
+        if (newWrap) newWrap.style.display = 'block';
+    };
+    window.showCurrentPasswordForm = function () {
+        if (currentWrap) currentWrap.style.display = 'block';
+        if (newWrap) newWrap.style.display = 'none';
+    };
+
+    // Опционально: если сервер пометил, что нужно показать новый пароль (например active_tab == 'password' и step == 'new'),
+    // можно автоматически вызвать showNewPasswordForm(); (тогда сервер должен передать window.PASSWORD_STEP)
+    if (window.PASSWORD_STEP === 'new') {
+        window.showNewPasswordForm();
+    }
+});
+</script>
+
+{% endblock %}

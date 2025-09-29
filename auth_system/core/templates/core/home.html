@@ -10,8 +10,13 @@
             <h1>Добро пожаловать в SmartHome!</h1>
             <p>Управляйте своим домом удобно и безопасно. Наша система объединяет все умные устройства в единую экосистему, обеспечивая комфорт, экономию и полный контроль над вашим жилым пространством.</p>
             <div>
-                <a href="{% url 'login_page' %}" class="btn">Войти</a>
-                <a href="{% url 'login_page' %}?tab=register" class="btn btn-outline">Зарегистрироваться</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'lobby' %}" class="btn">Перейти в лобби</a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline">Выйти</a>
+                {% else %}
+                    <a href="{% url 'login_page' %}" class="btn">Войти</a>
+                    <a href="{% url 'login_page' %}?tab=register" class="btn btn-outline">Зарегистрироваться</a>
+                {% endif %}
             </div>
         </div>
     </div>

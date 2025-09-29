@@ -1,9 +1,24 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 
 
 class RegisterForm(forms.ModelForm):
+    full_name = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            "class": "form-input",
+            "placeholder": "Ваше полное имя"
+        }),
+        label="ФИО",
+        error_messages={
+            "required": "Пожалуйста, введите ваше имя",
+            "max_length": "Имя слишком длинное",
+        }
+    )
+
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             "class": "form-input",
@@ -21,12 +36,8 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("username", "email")
+        fields = ("email",)
         widgets = {
-            "username": forms.TextInput(attrs={
-                "class": "form-input",
-                "placeholder": "Ваше полное имя"
-            }),
             "email": forms.EmailInput(attrs={
                 "class": "form-input",
                 "placeholder": "Ваш email"
@@ -34,13 +45,9 @@ class RegisterForm(forms.ModelForm):
 
         }
         labels = {
-            "username": "ФИО",
             "email": "Email",
         }
         error_messages = {
-            "username": {
-                "max_length": "Имя слишком длинное",
-            },
             "email": {
                 "invalid": "Введите корректный адрес email",
             },
@@ -134,3 +141,94 @@ class LoginForm(forms.Form):
 
         return cleaned_data
 
+class ProfileUpdateForm(forms.ModelForm):
+    full_name = forms.CharField(
+        max_length=150,
+        required=True,
+        label="ФИО",
+        widget=forms.TextInput(attrs={"class": "form-input"})
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        label="Телефон",
+        widget=forms.TextInput(attrs={"class": "form-input"})
+    )
+
+    class Meta:
+        model = User
+        fields = ("email",)
+        widgets = {"email": forms.EmailInput(attrs={"class": "form-input"})}
+        labels = {"email": "Email"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get("instance") or getattr(self, "instance", None)
+
+        if instance and instance.pk:
+            # подставляем в initial реальные значения
+            self.fields["full_name"].initial = getattr(instance, "first_name", "")
+            self.fields["email"].initial = getattr(instance, "email", "")
+            if hasattr(instance, "phone"):
+                self.fields["phone"].initial = getattr(instance, "phone", "")
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        user_id = self.instance.id if self.instance else None
+        if User.objects.exclude(id=user_id).filter(email=email).exists():
+            raise forms.ValidationError("Этот email уже используется другим пользователем.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # сохраняем full_name → first_name
+        user.first_name = self.cleaned_data.get("full_name", "")
+        if hasattr(user, "phone"):
+            user.phone = self.cleaned_data.get("phone", "")
+        if commit:
+            user.save()
+        return user
+
+
+class AddressUpdateForm(forms.Form):
+    address = forms.CharField(
+        max_length=255,
+        required=False,
+        label="Адрес",
+        widget=forms.TextInput(attrs={"class": "form-input"})
+    )
+
+
+class PasswordChangeCustomForm(forms.Form):
+    current_password = forms.CharField(
+        label="Текущий пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-input"})
+    )
+    new_password = forms.CharField(
+        label="Новый пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-input"}),
+        validators=[validate_password]
+    )
+    confirm_password = forms.CharField(
+        label="Подтверждение нового пароля",
+        widget=forms.PasswordInput(attrs={"class": "form-input"})
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_current_password(self):
+        current_password = self.cleaned_data.get("current_password")
+        if not self.user.check_password(current_password):
+            raise forms.ValidationError("Неверный текущий пароль.")
+        return current_password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if new_password and confirm_password and new_password != confirm_password:
+            self.add_error("confirm_password", "Пароли не совпадают.")
+        return cleaned_data
