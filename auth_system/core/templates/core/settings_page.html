@@ -4,9 +4,15 @@
 {% block content %}
 
 <style>
-.profile-form-container {
-    max-width: 1000px; /* ровно в 2 раза больше */
+/* Контейнер для формы */
+.profile-form-wrapper {
+    max-width: 1000px;   /* делаем форму шире */
     margin: 0 auto;
+}
+
+/* Основной блок формы */
+.profile-form-container {
+    width: 100%;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     padding: 40px;
@@ -15,12 +21,76 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* сетка для двух колонок */
+/* Заголовок формы */
+.profile-form-container .form-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profile-form-container .form-header h2 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.profile-form-container .form-divider {
+    border: none;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 0 auto;
+    width: 80%;
+}
+
+/* Сетка для полей */
 .profile-form-container .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    grid-template-columns: 1fr 1fr; /* две колонки */
+    gap: 25px 40px; /* отступы между строками и колонками */
 }
+
+/* Каждое поле */
+.profile-form-container .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Подписи */
+.profile-form-container .form-label {
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* Инпуты */
+.profile-form-container .form-input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.profile-form-container .form-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+}
+
+/* Ошибки */
+.profile-form-container .error {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: var(--error);
+}
+
+/* Кнопка */
+.profile-form-container .form-actions {
+    grid-column: span 2; /* кнопка на всю ширину формы */
+    text-align: center;
+    margin-top: 20px;
+}
+
 </style>
 
 <!-- Настройки профиля -->
@@ -43,83 +113,74 @@
 
                 <!-- Таб редактирования профиля -->
                 <div id="edit-tab" class="tab-content active">
-                    <div class="devices-grid">
-                        <div class="device-card settings-card">
-                            <div class="device-header">
-                                <div class="device-icon">
-                                    <i class="fas fa-user-edit"></i>
-                                </div>
-                                <div class="device-title">Основные данные</div>
+                    <div class="profile-form-wrapper">
+                        <form method="post" action="{% url 'settings' %}" class="profile-form-container">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="profile">
+
+                            <div class="form-header">
+                                <h2>Редактирование профиля</h2>
+                                <hr class="form-divider">
                             </div>
-                            <form method="post" action="{% url 'settings' %}"  class="profile-form-container">
-                                {% csrf_token %}
-                                <input type="hidden" name="form_type" value="profile">
 
-                                <div class="form-header">
-                                    <h2>Редактирование профиля</h2>
-                                    <hr class="form-divider">
+                            <div class="form-grid">
+                                <!-- первая строка -->
+                                <div class="form-group">
+                                    <label class="form-label">ФИО</label>
+                                    <input type="text"
+                                           name="full_name"
+                                           class="form-input"
+                                           value="{{ profile_form.full_name.value|default:profile_form.full_name.initial }}"
+                                           placeholder="{% if not profile_form.full_name.value and not profile_form.full_name.initial %}Ваше полное имя{% endif %}"
+                                           required>
+                                    {% if profile_form.full_name.errors %}
+                                        <div class="error">{{ profile_form.full_name.errors }}</div>
+                                    {% endif %}
                                 </div>
 
-                                <div class="form-grid">
-                                    <!-- первая строка -->
-                                    <div class="form-group">
-                                        <label class="form-label">ФИО</label>
-                                        <input type="text"
-                                               name="full_name"
-                                               class="form-input"
-                                               value="{{ profile_form.full_name.value|default:profile_form.full_name.initial }}"
-                                               placeholder="{% if not profile_form.full_name.value and not profile_form.full_name.initial %}Ваше полное имя{% endif %}"
-                                               required>
-                                        {% if profile_form.full_name.errors %}
-                                            <div class="error">{{ profile_form.full_name.errors }}</div>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label">Email</label>
-                                        <input type="email"
-                                               name="email"
-                                               class="form-input"
-                                               value="{{ profile_form.email.value|default:profile_form.email.initial }}"
-                                               placeholder="{% if not profile_form.email.value and not profile_form.email.initial %}Ваш email{% endif %}"
-                                               required>
-                                        {% if profile_form.email.errors %}
-                                            <div class="error">{{ profile_form.email.errors }}</div>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- вторая строка -->
-                                    <div class="form-group">
-                                        <label class="form-label">Телефон</label>
-                                        <input type="tel"
-                                               name="phone"
-                                               class="form-input"
-                                               value="{{ profile_form.phone.value|default:profile_form.phone.initial }}"
-                                               placeholder="{% if not profile_form.phone.value and not profile_form.phone.initial %}+7 (___) ___-__-__{% endif %}">
-                                        {% if profile_form.phone.errors %}
-                                            <div class="error">{{ profile_form.phone.errors }}</div>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label">Адрес</label>
-                                        <input type="text"
-                                               name="address"
-                                               class="form-input"
-                                               value="{{ profile_form.address.value|default:profile_form.address.initial }}"
-                                               placeholder="{% if not profile_form.address.value and not profile_form.address.initial %}Введите ваш адрес{% endif %}">
-                                        {% if profile_form.address.errors %}
-                                            <div class="error">{{ profile_form.address.errors }}</div>
-                                        {% endif %}
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email"
+                                           name="email"
+                                           class="form-input"
+                                           value="{{ profile_form.email.value|default:profile_form.email.initial }}"
+                                           placeholder="{% if not profile_form.email.value and not profile_form.email.initial %}Ваш email{% endif %}"
+                                           required>
+                                    {% if profile_form.email.errors %}
+                                        <div class="error">{{ profile_form.email.errors }}</div>
+                                    {% endif %}
                                 </div>
 
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-small">Сохранить изменения</button>
+                                <!-- вторая строка -->
+                                <div class="form-group">
+                                    <label class="form-label">Телефон</label>
+                                    <input type="tel"
+                                           name="phone"
+                                           class="form-input"
+                                           value="{{ profile_form.phone.value|default:profile_form.phone.initial }}"
+                                           placeholder="{% if not profile_form.phone.value and not profile_form.phone.initial %}+7 (___) ___-__-__{% endif %}">
+                                    {% if profile_form.phone.errors %}
+                                        <div class="error">{{ profile_form.phone.errors }}</div>
+                                    {% endif %}
                                 </div>
-                            </form>
 
-                        </div>
+                                <div class="form-group">
+                                    <label class="form-label">Адрес</label>
+                                    <input type="text"
+                                           name="address"
+                                           class="form-input"
+                                           value="{{ profile_form.address.value|default:profile_form.address.initial }}"
+                                           placeholder="{% if not profile_form.address.value and not profile_form.address.initial %}Введите ваш адрес{% endif %}">
+                                    {% if profile_form.address.errors %}
+                                        <div class="error">{{ profile_form.address.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-small">Сохранить изменения</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -134,9 +195,12 @@
                                 <div class="device-title">Смена пароля</div>
                             </div>
 
+                            <!-- Форма проверки текущего пароля -->
                             <div id="current-password-form">
                                 <form method="post" action="{% url 'settings' %}">
                                     {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="password_step1">
+
                                     <div class="device-info">
                                         <div class="form-group">
                                             <label class="form-label">Текущий пароль</label>
@@ -156,9 +220,12 @@
                                 </form>
                             </div>
 
+                            <!-- Форма ввода нового пароля -->
                             <div id="new-password-form" style="display: none;">
                                 <form method="post" action="{% url 'settings' %}">
                                     {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="password_step2">
+
                                     <div class="device-info">
                                         <div class="form-group">
                                             <label class="form-label">Новый пароль</label>
@@ -193,6 +260,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Остальные табы без изменений -->
                 <div id="family-tab" class="tab-content">
@@ -314,6 +382,17 @@
         </div>
     </div>
 </section>
+
+{% if active_tab == "password" %}
+    <script>
+        {% if show_new_password_form %}
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("current-password-form").style.display = "none";
+                document.getElementById("new-password-form").style.display = "block";
+            });
+        {% endif %}
+    </script>
+{% endif %}
 
 <script>
 // Переключение табов
