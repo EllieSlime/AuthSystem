@@ -187,13 +187,7 @@ class PasswordChangeCustomForm(forms.Form):
         if new_password and confirm_password:
             if new_password != confirm_password:
                 self.add_error("confirm_password", "Пароли не совпадают.")
-            else:
-                # прогоняем валидацию по политике паролей Django
-                try:
-                    validate_password(new_password, self.user)
-                except DjangoValidationError as e:
-                    # convert ValidationError -> add_error
-                    self.add_error("new_password", e.messages)
+
         return cleaned_data
 
 class ProfileUpdateForm(forms.ModelForm):

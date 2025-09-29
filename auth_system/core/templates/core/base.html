@@ -1096,6 +1096,40 @@
                 }
             });
         });
+
+        (function() {
+            const current = window.location.pathname; // текущий путь
+            const historyKey = 'pageHistory';
+            const maxHistory = 10;
+
+            // Получаем историю из sessionStorage или создаём пустую
+            let history = JSON.parse(sessionStorage.getItem(historyKey) || '[]');
+
+            // Найти последнюю страницу, отличную от текущей
+            let backUrl = '/'; // fallback
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (history[i] !== current) {
+                    backUrl = history[i];
+                    break;
+                }
+            }
+
+            // Назначаем ссылку на кнопку
+            document.getElementById('back-link').href = backUrl;
+
+            // Добавляем текущую страницу в историю, если она не последняя
+            if (history.length === 0 || history[history.length - 1] !== current) {
+                history.push(current);
+            }
+
+            // Ограничиваем длину истории
+            if (history.length > maxHistory) {
+                history = history.slice(history.length - maxHistory);
+            }
+
+            // Сохраняем историю обратно
+            sessionStorage.setItem(historyKey, JSON.stringify(history));
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>
