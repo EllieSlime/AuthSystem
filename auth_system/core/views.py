@@ -39,8 +39,7 @@ def error403(request):
     return render(request, "core/error403.html")
 def login_page(request):
     return render(request, "core/login_page.html")
-def settings_page(request):
-    return render(request, "core/settings_page.html")
+
 def lobby(request):
     return render(request, "core/lobby.html")
 def lobby_add(request):
