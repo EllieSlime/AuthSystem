@@ -102,8 +102,8 @@
             <div class="sidebar">
                 <ul class="sidebar-nav">
                     <li><a href="{{ request.META.HTTP_REFERER|default:'/' }}"><i class="fas fa-arrow-left"></i> Назад</a></li>
-                    <li><a href="#" class="active" data-tab="edit-tab"><i class="fas fa-user-edit"></i> Редактирование</a></li>
-                    <li><a href="#" data-tab="password-tab"><i class="fas fa-key"></i> Смена пароля</a></li>
+                    <li><a href="#" class="{% if active_tab == 'profile' %}active{% endif %}" data-tab="edit-tab"><i class="fas fa-user-edit"></i> Редактирование</a></li>
+                    <li><a href="#" class="{% if active_tab == 'password' %}active{% endif %}" data-tab="password-tab"><i class="fas fa-key"></i> Смена пароля</a></li>
                     <li><a href="#" data-tab="family-tab"><i class="fas fa-users"></i> Семейные аккаунты</a></li>
                     <li><a href="#" data-tab="system-tab"><i class="fas fa-cog"></i> Настройки системы</a></li>
                 </ul>
@@ -189,28 +189,26 @@
                     <div class="devices-grid">
                         <div class="device-card settings-card">
                             <div class="device-header">
-                                <div class="device-icon">
-                                    <i class="fas fa-key"></i>
-                                </div>
+                                <div class="device-icon"><i class="fas fa-key"></i></div>
                                 <div class="device-title">Смена пароля</div>
                             </div>
 
-                            <!-- Форма проверки текущего пароля -->
-                            <div id="current-password-form">
+                            <!-- Шаг 1: проверка текущего пароля -->
+                            <div id="current-password-form" style="{% if show_new_password_form %}display: none;{% endif %}">
                                 <form method="post" action="{% url 'settings' %}">
                                     {% csrf_token %}
-                                    <input type="hidden" name="form_type" value="password_step1">
-
+                                    <input type="hidden" name="form_type" value="password_verify">
                                     <div class="device-info">
                                         <div class="form-group">
                                             <label class="form-label">Текущий пароль</label>
                                             <input type="password"
                                                    name="current_password"
                                                    class="form-input"
+                                                   value="{{ current_password_form.current_password.value|default:'' }}"
                                                    placeholder="Введите текущий пароль"
                                                    required>
-                                            {% if password_form.current_password.errors %}
-                                                <div class="error">{{ password_form.current_password.errors }}</div>
+                                            {% if current_password_form.current_password.errors %}
+                                                <div class="error">{{ current_password_form.current_password.errors }}</div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -220,18 +218,18 @@
                                 </form>
                             </div>
 
-                            <!-- Форма ввода нового пароля -->
-                            <div id="new-password-form" style="display: none;">
+                            <!-- Шаг 2: ввод нового пароля -->
+                            <div id="new-password-form" style="{% if not show_new_password_form %}display: none;{% endif %}">
                                 <form method="post" action="{% url 'settings' %}">
                                     {% csrf_token %}
-                                    <input type="hidden" name="form_type" value="password_step2">
-
+                                    <input type="hidden" name="form_type" value="password_change">
                                     <div class="device-info">
                                         <div class="form-group">
                                             <label class="form-label">Новый пароль</label>
                                             <input type="password"
                                                    name="new_password"
                                                    class="form-input"
+                                                   value="{{ password_form.new_password.value|default:'' }}"
                                                    placeholder="Введите новый пароль"
                                                    required>
                                             {% if password_form.new_password.errors %}
@@ -244,6 +242,7 @@
                                             <input type="password"
                                                    name="confirm_password"
                                                    class="form-input"
+                                                   value="{{ password_form.confirm_password.value|default:'' }}"
                                                    placeholder="Повторите новый пароль"
                                                    required>
                                             {% if password_form.confirm_password.errors %}
@@ -257,6 +256,7 @@
                                     </div>
                                 </form>
                             </div>
+
                         </div>
                     </div>
                 </div>

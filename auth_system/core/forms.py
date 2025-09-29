@@ -4,7 +4,8 @@ User = get_user_model()
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-
+from django.core.exceptions import ValidationError as DjangoValidationError
+User = get_user_model()
 
 class RegisterForm(forms.ModelForm):
     full_name = forms.CharField(
@@ -143,6 +144,58 @@ class LoginForm(forms.Form):
 
         return cleaned_data
 
+# --- форма для проверки текущего пароля (шаг 1) ---
+class CurrentPasswordForm(forms.Form):
+    current_password = forms.CharField(
+        label="Текущий пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-input"}),
+        error_messages={"required": "Введите текущий пароль"}
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_current_password(self):
+        current_password = self.cleaned_data.get("current_password")
+        if not self.user.check_password(current_password):
+            raise forms.ValidationError("Неверный текущий пароль.")
+        return current_password
+
+# --- форма для ввода нового пароля (шаг 2) ---
+class PasswordChangeCustomForm(forms.Form):
+    new_password = forms.CharField(
+        label="Новый пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-input"}),
+        error_messages={"required": "Введите новый пароль"}
+    )
+    confirm_password = forms.CharField(
+        label="Подтверждение нового пароля",
+        widget=forms.PasswordInput(attrs={"class": "form-input"}),
+        error_messages={"required": "Подтвердите новый пароль"}
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                self.add_error("confirm_password", "Пароли не совпадают.")
+            else:
+                # прогоняем валидацию по политике паролей Django
+                try:
+                    validate_password(new_password, self.user)
+                except DjangoValidationError as e:
+                    # convert ValidationError -> add_error
+                    self.add_error("new_password", e.messages)
+        return cleaned_data
+
 class ProfileUpdateForm(forms.ModelForm):
     full_name = forms.CharField(
         max_length=150,
@@ -191,39 +244,3 @@ class ProfileUpdateForm(forms.ModelForm):
         return user
 
 
-class PasswordChangeCustomForm(forms.Form):
-    current_password = forms.CharField(
-        label="Текущий пароль",
-        widget=forms.PasswordInput(attrs={"class": "form-input"}),
-        error_messages={"required": "Введите текущий пароль"}
-    )
-    new_password = forms.CharField(
-        label="Новый пароль",
-        widget=forms.PasswordInput(attrs={"class": "form-input"}),
-        validators=[validate_password],
-        error_messages={"required": "Введите новый пароль"}
-    )
-    confirm_password = forms.CharField(
-        label="Подтверждение нового пароля",
-        widget=forms.PasswordInput(attrs={"class": "form-input"}),
-        error_messages={"required": "Подтвердите новый пароль"}
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-    def clean_current_password(self):
-        current_password = self.cleaned_data.get("current_password")
-        if not self.user.check_password(current_password):
-            raise forms.ValidationError("Неверный текущий пароль.")
-        return current_password
-
-    def clean(self):
-        cleaned_data = super().clean()
-        new_password = cleaned_data.get("new_password")
-        confirm_password = cleaned_data.get("confirm_password")
-
-        if new_password and confirm_password and new_password != confirm_password:
-            self.add_error("confirm_password", "Пароли не совпадают.")
-        return cleaned_data

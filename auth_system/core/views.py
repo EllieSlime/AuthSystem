@@ -2,17 +2,18 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, LoginForm, ProfileUpdateForm
+from .forms import RegisterForm, LoginForm, ProfileUpdateForm, CurrentPasswordForm, PasswordChangeCustomForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
 from .forms import (
     ProfileUpdateForm,
     PasswordChangeCustomForm,
+    ProfileUpdateForm,
+    CurrentPasswordForm,
 )
 
 
@@ -130,40 +131,52 @@ def logout_view(request):
 
 @login_required
 def settings_view(request):
+    # инициализация форм (не привязанные)
     profile_form = ProfileUpdateForm(instance=request.user)
+    current_password_form = CurrentPasswordForm(user=request.user)
     password_form = PasswordChangeCustomForm(user=request.user)
 
-    active_tab = "profile"  # по умолчанию открываем профиль
+    active_tab = "profile"           # по умолчанию
+    show_new_password_form = False   # показывать второй шаг смены пароля?
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
 
+        # ------------- профиль -------------
         if form_type == "profile":
             profile_form = ProfileUpdateForm(request.POST, instance=request.user)
             if profile_form.is_valid():
                 profile_form.save()
                 messages.success(request, "Данные профиля обновлены.")
+                return redirect("settings")  # успешное сохранение — редирект
             else:
                 messages.error(request, "Ошибка при обновлении профиля.")
             active_tab = "profile"
 
-        elif form_type == "password_step1":
-            # Проверяем текущий пароль
-            current_password = request.POST.get("current_password")
-            if request.user.check_password(current_password):
-                messages.info(request, "Пароль верный, введите новый.")
+        # ------------- шаг 1: проверка текущего пароля -------------
+        elif form_type == "password_verify":
+            # привязываем форму проверки текущего пароля
+            current_password_form = CurrentPasswordForm(request.user, request.POST)
+            if current_password_form.is_valid():
+                # пароль верный — показываем форму ввода нового пароля
+                show_new_password_form = True
                 active_tab = "password"
+                # password_form остаётся unbound (пустой) — пользователь введёт новый пароль
+                # рендерим страницу (не редирект), чтобы остались ошибки/контекст
                 return render(request, "core/settings_page.html", {
                     "profile_form": profile_form,
+                    "current_password_form": current_password_form,
                     "password_form": password_form,
-                    "show_new_password_form": True,
                     "active_tab": active_tab,
+                    "show_new_password_form": show_new_password_form,
                 })
             else:
+                # ошибка проверки текущего пароля — current_password_form содержит ошибки
                 messages.error(request, "Неверный текущий пароль.")
                 active_tab = "password"
 
-        elif form_type == "password_step2":
+        # ------------- шаг 2: установка нового пароля -------------
+        elif form_type == "password_change":
             password_form = PasswordChangeCustomForm(request.user, request.POST)
             if password_form.is_valid():
                 new_password = password_form.cleaned_data["new_password"]
@@ -171,14 +184,24 @@ def settings_view(request):
                 request.user.save()
                 update_session_auth_hash(request, request.user)
                 messages.success(request, "Пароль успешно изменён.")
+                return redirect("settings")
             else:
+                # показать ошибки на шаге ввода нового пароля
                 messages.error(request, "Ошибка при смене пароля.")
-            active_tab = "password"
+                active_tab = "password"
+                show_new_password_form = True
 
+        else:
+            # неизвестный form_type — просто оставим всё как есть
+            active_tab = request.POST.get("form_type", "profile")
+
+    # GET или падение валидации — отрисуем текущие формы
     return render(request, "core/settings_page.html", {
         "profile_form": profile_form,
+        "current_password_form": current_password_form,
         "password_form": password_form,
         "active_tab": active_tab,
+        "show_new_password_form": show_new_password_form,
     })
 
 @login_required
