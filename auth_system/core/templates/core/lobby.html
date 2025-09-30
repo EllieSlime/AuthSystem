@@ -51,8 +51,29 @@
                             Участников: {{ lobby.memberships.count }}
                         </div>
                         <div class="device-actions">
-                            <a href="{% url 'lobby_set' lobby.id %}" class="btn btn-small btn-outline">Параметры</a>
-                            <a href="{% url 'lobby_detail' lobby.id %}" class="btn btn-small">Войти</a>
+                            <form action="{% url 'lobby_leave' lobby.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+
+                                <div class="default-actions">
+                                    <a href="{% url 'lobby_set' lobby.id %}" class="btn btn-small btn-outline">Параметры</a>
+                                    <a href="{% url 'lobby_detail' lobby.id %}" class="btn btn-small enter-btn">Войти</a>
+
+                                    {% if lobby.user_role != "owner" %}
+                                        <button type="button"
+                                                class="btn btn-small btn-outline danger leave-btn"
+                                                onclick="showLeaveConfirm(this)">
+                                            Выйти
+                                        </button>
+                                    {% endif %}
+                                </div>
+
+                                {% if lobby.user_role != "owner" %}
+                                    <div class="confirm-exit" style="display:none; margin-top:5px;">
+                                        <button type="submit" class="btn btn-small danger">Подтвердить</button>
+                                        <button type="button" class="btn btn-small btn-outline" onclick="cancelLeave(this)">Назад</button>
+                                    </div>
+                                {% endif %}
+                            </form>
                         </div>
                     </div>
                     {% endfor %}
@@ -77,5 +98,19 @@
         </div>
     </div>
 </section>
+
+<script>
+function showLeaveConfirm(button) {
+    const form = button.closest("form");
+    button.style.display = "none";
+    form.querySelector(".confirm-exit").style.display = "block";
+}
+
+function cancelLeave(button) {
+    const confirmBlock = button.closest(".confirm-exit");
+    confirmBlock.style.display = "none";
+    confirmBlock.closest("form").querySelector("button[type='button']").style.display = "inline-block";
+}
+</script>
 
 {% endblock %}

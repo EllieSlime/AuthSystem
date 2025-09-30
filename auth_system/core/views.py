@@ -28,8 +28,7 @@ def home(request):
     return render(request, "core/home.html")
 def about(request):
     return render(request, "core/about.html")
-def account(request):
-    return render(request, "core/account.html")
+
 def adminn(request):
     return render(request, "core/adminn.html")
 def assistant(request):
@@ -292,13 +291,18 @@ def lobby_settings(request, lobby_id):
     lobby = get_object_or_404(Lobby, id=lobby_id)
     membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
 
-    if not membership or membership.role not in ["owner", "admin"]:
+    if not membership:
+        return redirect("error403")
+
+    # только owner и admin имеют доступ к настройкам
+    if membership.role not in ["owner", "admin"]:
         return redirect("error403")
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
 
         if form_type == "basic_settings":
+            # owner и admin могут менять основные параметры
             lobby.name = request.POST.get("lobby_name")
             lobby.is_public = "is_public" in request.POST
             lobby.is_active = "is_active" in request.POST
@@ -306,20 +310,58 @@ def lobby_settings(request, lobby_id):
             messages.success(request, "Изменения сохранены.")
 
         elif form_type == "add_member":
+            # добавлять участников может и админ, и владелец
             form = AddMemberForm(request.POST, lobby=lobby)
             if form.is_valid():
-                form.save()
-                messages.success(request, "Участник добавлен.")
+                # если добавляет админ → запрещено назначать владельца
+                role = form.cleaned_data.get("role")
+                if membership.role == "admin" and role == "owner":
+                    messages.error(request, "Администратор не может назначить владельца.")
+                else:
+                    form.save()
+                    messages.success(request, "Участник добавлен.")
             else:
                 messages.error(request, "Ошибка при добавлении участника.")
 
         elif form_type == "delete_confirm":
+            # удалять может только владелец
             if membership.role == "owner":
                 lobby.delete()
                 messages.success(request, "Лобби удалено.")
                 return redirect("lobby")
             else:
                 messages.error(request, "Удалить может только владелец.")
+
+        elif form_type == "update_roles":
+            # обновление ролей участников
+            for key, value in request.POST.items():
+                if key.startswith("role_"):
+                    member_id = key.split("_")[1]
+                    try:
+                        member = LobbyMembership.objects.get(id=member_id, lobby=lobby)
+                        # нельзя менять владельца
+                        if member.role == "owner":
+                            continue
+                        # админ не может менять роль другого админа
+                        if membership.role == "admin" and member.role == "admin":
+                            continue
+                        member.role = value
+                        member.save()
+                    except LobbyMembership.DoesNotExist:
+                        continue
+            messages.success(request, "Роли обновлены.")
+
+        elif form_type == "remove_member":
+            member_id = request.POST.get("member_id")
+            try:
+                target = LobbyMembership.objects.get(id=member_id, lobby=lobby)
+                if target.role != "owner":  # защита от удаления владельца
+                    target.delete()
+                    messages.success(request, "Участник исключён.")
+                else:
+                    messages.error(request, "Нельзя удалить владельца лобби.")
+            except LobbyMembership.DoesNotExist:
+                messages.error(request, "Участник не найден.")
 
     add_member_form = AddMemberForm(lobby=lobby)
     members = LobbyMembership.objects.filter(lobby=lobby).select_related("user")
@@ -328,6 +370,7 @@ def lobby_settings(request, lobby_id):
         "lobby": lobby,
         "add_member_form": add_member_form,
         "members": members,
+        "user_role": membership.role,   # 👈 важно
     })
 
 
@@ -348,29 +391,31 @@ def lobby_search(request):
 
 @login_required
 def lobby(request):
-    """
-    Каталог лобби: показывает мои лобби или результат поиска по коду.
-    """
     query = request.GET.get("code", "").strip()
-    error_message = None  # <-- добавляем переменную для сообщения об ошибке
+    error_message = None
 
     if query:
-        # ищем лобби по коду
         try:
-            lobbies = [Lobby.objects.get(code=query, is_active=True, is_public=True)]
+            # просто ищем лобби, без добавления участника
+            lobby_obj = Lobby.objects.get(code=query, is_active=True, is_public=True)
+            lobbies = [lobby_obj]
         except Lobby.DoesNotExist:
-            # если публичного лобби с кодом нет, показываем только свои лобби
             lobbies = Lobby.objects.filter(memberships__user=request.user, is_active=True)
             error_message = "Лобби с таким идентификатором не найдено или оно приватное."
     else:
-        # если строка пустая → показываем мои лобби
         lobbies = Lobby.objects.filter(memberships__user=request.user, is_active=True)
+
+    # прикрепляем роль текущего пользователя к каждому лобби (если он состоит в нём)
+    for lb in lobbies:
+        membership = LobbyMembership.objects.filter(user=request.user, lobby=lb).first()
+        lb.user_role = membership.role if membership else None
 
     return render(request, "core/lobby.html", {
         "lobbies": lobbies,
         "search_query": query,
-        "error_message": error_message,  # передаём в шаблон
+        "error_message": error_message,
     })
+
 
 @login_required
 def lobby_cre(request):
@@ -395,4 +440,39 @@ def lobby_cre(request):
 @login_required
 def lobby_detail(request, lobby_id):
     lobby = get_object_or_404(Lobby, id=lobby_id)
-    return render(request, "core/lobby_detail.html", {"lobby": lobby})
+
+    # Проверяем, состоит ли пользователь в лобби
+    membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
+    if not membership:
+        # пользователь не состоит в лобби → создаём как guest
+        membership = LobbyMembership.objects.create(user=request.user, lobby=lobby, role="guest")
+
+    # Для устройств пока просто пустой список
+    devices = []
+
+    return render(request, "core/lobby_detail.html", {
+        "lobby": lobby,
+        "devices": devices,
+        "user_role": membership.role,   # 👈 чтобы в шаблоне можно было скрывать кнопки
+    })
+
+@login_required
+def lobby_leave(request, lobby_id):
+    lobby = get_object_or_404(Lobby, id=lobby_id)
+    membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
+
+    if not membership:
+        messages.error(request, "Вы не состоите в этом лобби.")
+        return redirect("lobby")
+
+    # Владелец не может покинуть собственное лобби
+    if membership.role == "owner":
+        messages.error(request, "Владелец не может выйти из собственного лобби. Сначала передайте права или удалите лобби.")
+        return redirect("lobby_set", lobby_id=lobby.id)
+
+    if request.method == "POST":
+        membership.delete()
+        messages.success(request, f"Вы вышли из лобби «{lobby.name}».")
+        return redirect("lobby")
+
+    return redirect("lobby")

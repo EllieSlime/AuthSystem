@@ -869,7 +869,6 @@
 
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="{% url 'login_page' %}"><i class="fas fa-sign-in-alt"></i> Вход</a>
-                <a href="{% url 'account' %}"><i class="fas fa-user-circle"></i> Аккаунт</a>
                 <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
                 <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
                 <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки</a>
@@ -1148,6 +1147,30 @@
                 });
             }
         });
+
+        function showLeaveConfirm(button) {
+            const deviceActions = button.closest(".device-actions");
+
+            // скрыть блок с обычными кнопками
+            const defaultBlock = deviceActions.querySelector(".default-actions");
+            if (defaultBlock) defaultBlock.style.display = "none";
+
+            // показать блок подтверждения
+            const confirmBlock = deviceActions.querySelector(".confirm-exit");
+            if (confirmBlock) confirmBlock.style.display = "block";
+        }
+
+        function cancelLeave(button) {
+            const deviceActions = button.closest(".device-actions");
+
+            // вернуть обычные кнопки
+            const defaultBlock = deviceActions.querySelector(".default-actions");
+            if (defaultBlock) defaultBlock.style.display = "block";
+
+            // скрыть подтверждение
+            const confirmBlock = deviceActions.querySelector(".confirm-exit");
+            if (confirmBlock) confirmBlock.style.display = "none";
+        }
     </script>
     {% block extra_js %}{% endblock %}
 </body>

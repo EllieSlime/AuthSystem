@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+{% block title %}Аккаунт - SmartHome{% endblock %}
+
+{% block content %}
+
+<!-- Аккаунт пользователя -->
+<section class="account">
+    <div class="container">
+        <h2 class="section-title">Личный кабинет</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'lobby' %}"><i class="fas fa-arrow-left"></i> Выбрать лобби</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-th-large"></i> Каталог устройств</a></li>
+                    <li><a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Умный помощник</a></li>
+                    <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки профиля</a></li>
+                    <li><a href="{% url 'adminn' %}"><i class="fas fa-tools"></i> Админка</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <div class="devices-grid">
+                    {% for device in devices %}
+                        <!-- Здесь будут реальные устройства -->
+                        <div class="device-card">
+                            <div class="device-header">
+                                <div class="device-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="device-title">{{ device.name }}</div>
+                                <div class="device-status status-online">Online</div>
+                            </div>
+                            <div class="device-info">
+                                {{ device.description }}
+                            </div>
+                            <div class="device-actions">
+                                <a href="#" class="btn btn-small">Управлять</a>
+                                <a href="#" class="btn btn-small btn-outline">Подробнее</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <!-- Карточка "Добавить устройство" -->
+                    <div class="device-card add-device-card">
+                        <div class="device-header">
+                            <div class="device-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="device-title">Добавить устройство</div>
+                        </div>
+                        <div class="device-info">
+                            Нажмите, чтобы добавить новое устройство в систему
+                        </div>
+                        <div class="device-actions">
+                            <a href="#" class="btn btn-small">Добавить</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

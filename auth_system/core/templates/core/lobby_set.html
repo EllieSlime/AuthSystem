@@ -73,6 +73,7 @@
                         </form>
                     </div>
 
+                    {% if user_role == "owner" %}
                     <!-- Карточка опасных действий -->
                     <div class="device-card">
                         <div class="device-header">
@@ -102,6 +103,8 @@
                             </form>
                         </div>
                     </div>
+                    {% endif %}
+
                 </div>
 
                 <!-- Таб управления доступом -->
@@ -142,6 +145,7 @@
                     </div>
 
                     <!-- Список участников -->
+                    <!-- Список участников -->
                     <div class="device-card">
                         <div class="device-header">
                             <div class="device-icon">
@@ -149,50 +153,60 @@
                             </div>
                             <div class="device-title">Участники лобби</div>
                         </div>
-                        <div class="device-info">
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <thead>
-                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
-                                            <th style="padding: 15px; text-align: left;">Пользователь</th>
-                                            <th style="padding: 15px; text-align: left;">Роль</th>
-                                            <th style="padding: 15px; text-align: left;">Действия</th>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="update_roles">
+                            <div class="device-info">
+                                <div style="overflow-x: auto;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                                                <th style="padding: 15px; text-align: left;">Пользователь</th>
+                                                <th style="padding: 15px; text-align: left;">Роль</th>
+                                                <th style="padding: 15px; text-align: left;">Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for m in members %}
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <td style="padding: 15px;">
+                                                <div>{{ m.user.email }}</div>
+                                                {% if m.role == "owner" %}
+                                                    <small style="color: rgba(255,255,255,0.7);">Создатель</small>
+                                                {% endif %}
+                                            </td>
+                                            <td style="padding: 15px;">
+                                                <select name="role_{{ m.id }}" class="form-input" style="padding: 8px 12px; height: 36px;"
+                                                    {% if m.role == "owner" %}disabled{% endif %}>
+                                                    <option value="admin" {% if m.role == "admin" %}selected{% endif %}>Администратор</option>
+                                                    <option value="member" {% if m.role == "member" %}selected{% endif %}>Участник</option>
+                                                    <option value="guest" {% if m.role == "guest" %}selected{% endif %}>Гость</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 15px;">
+                                                {% if m.role == "owner" %}
+                                                    <button class="btn btn-small btn-outline" disabled>Нельзя исключить</button>
+                                                {% else %}
+                                                    <form method="post" style="display:inline;">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="form_type" value="remove_member">
+                                                        <input type="hidden" name="member_id" value="{{ m.id }}">
+                                                        <button type="submit" class="btn btn-small btn-outline">Исключить</button>
+                                                    </form>
+                                                {% endif %}
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for m in members %}
-                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                        <td style="padding: 15px;">
-                                            <div>{{ m.user.email }}</div>
-                                            {% if m.role == "owner" %}
-                                                <small style="color: rgba(255,255,255,0.7);">Создатель</small>
-                                            {% endif %}
-                                        </td>
-                                        <td style="padding: 15px;">
-                                            <select class="form-input" style="padding: 5px; height: auto;" {% if m.role == "owner" %}disabled{% endif %}>
-                                                <option value="admin" {% if m.role == "admin" %}selected{% endif %}>Администратор</option>
-                                                <option value="member" {% if m.role == "member" %}selected{% endif %}>Участник</option>
-                                                <option value="guest" {% if m.role == "guest" %}selected{% endif %}>Гость</option>
-                                            </select>
-                                        </td>
-                                        <td style="padding: 15px;">
-                                            {% if m.role == "owner" %}
-                                                <button class="btn btn-small btn-outline" disabled>Нельзя исключить</button>
-                                            {% else %}
-                                                <button class="btn btn-small btn-outline">Исключить</button>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr><td colspan="3">Участников пока нет</td></tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                        {% empty %}
+                                        <tr><td colspan="3">Участников пока нет</td></tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                        <div class="device-actions">
-                            <button type="button" class="btn btn-small">Сохранить изменения ролей</button>
-                        </div>
+                            <div class="device-actions">
+                                <button type="submit" class="btn btn-small">Сохранить изменения ролей</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
