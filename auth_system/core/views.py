@@ -250,3 +250,13 @@ def change_password(request):
         else:
             messages.error(request, "Ошибка при смене пароля.")
     return redirect("settings")
+
+@login_required
+def deactivate_profile(request):
+    """Деактивировать профиль (отключить вход в аккаунт)"""
+    user = request.user
+    user.is_active = False
+    user.save()
+    logout(request)
+    messages.info(request, "Ваш профиль был деактивирован. Для повторной активации обратитесь к администратору.")
+    return redirect("home")

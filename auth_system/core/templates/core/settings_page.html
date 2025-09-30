@@ -4,6 +4,12 @@
 {% block content %}
 
 <style>
+.form-actions {
+    display: flex;
+    gap: 12px; /* расстояние между кнопками */
+    align-items: center;
+}
+
 /* Контейнер для формы */
 .profile-form-wrapper {
     max-width: 1000px;   /* делаем форму шире */
@@ -179,6 +185,18 @@
 
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-small">Сохранить изменения</button>
+
+                                <!-- кнопка удаления (меняется на confirm-кнопки) -->
+                                <button type="button" id="delete-profile-btn" class="btn btn-small btn-danger">Удалить профиль</button>
+
+                                <!-- скрытый блок подтверждения -->
+                                <div id="confirm-delete-block" style="display: none; margin-left: 10px;">
+                                    <a href="#" id="cancel-delete" class="btn btn-small btn-outline">Назад</a>
+                                    <a href="{% url 'deactivate_profile' %}" class="btn btn-small btn-danger">Удалить</a>
+                                </div>
+
+                                <!-- кнопка выхода -->
+                                <a href="{% url 'logout' %}" class="btn btn-small btn-outline">Выйти</a>
                             </div>
                         </form>
                     </div>

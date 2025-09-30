@@ -1130,6 +1130,25 @@
             // Сохраняем историю обратно
             sessionStorage.setItem(historyKey, JSON.stringify(history));
         })();
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const deleteBtn = document.getElementById("delete-profile-btn");
+            const confirmBlock = document.getElementById("confirm-delete-block");
+            const cancelBtn = document.getElementById("cancel-delete");
+
+            if (deleteBtn && confirmBlock && cancelBtn) {
+                deleteBtn.addEventListener("click", function() {
+                    deleteBtn.style.display = "none";
+                    confirmBlock.style.display = "inline-block";
+                });
+
+                cancelBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    confirmBlock.style.display = "none";
+                    deleteBtn.style.display = "inline-block";
+                });
+            }
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
