@@ -3,7 +3,6 @@
 
 {% block content %}
 
-<!-- Страница моих лобби -->
 <section class="account">
     <div class="container">
         <h2 class="section-title">Мои лобби</h2>
@@ -11,67 +10,54 @@
         <div class="account-container">
             <div class="sidebar">
                 <ul class="sidebar-nav">
-                    <li><a href="#" class="active"><i class="fas fa-building"></i> Выбрать лобби</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-building"></i> Мои лобби</a></li>
                     <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки профиля</a></li>
                 </ul>
             </div>
 
             <div class="account-content">
-                <h3>Доступные лобби</h3>
+                <!-- Строка поиска -->
+                <form method="get" style="margin-bottom: 30px;">
+                    <input type="text"
+                           name="code"
+                           value="{{ search_query|default:'' }}"
+                           class="form-input"
+                           placeholder="Введите 6-значный код лобби..."
+                           style="max-width: 300px; display: inline-block; margin-right: 10px;">
+                    <button type="submit" class="btn btn-small">Найти</button>
+                </form>
+                {% if error_message %}
+                    <div class="error-message" style="color: white; margin-bottom: 20px;">
+                        {{ error_message }}
+                    </div>
+                {% endif %}
+
                 <div class="devices-grid">
-                    <!-- Карточки лобби -->
+                    {% for lobby in lobbies %}
                     <div class="device-card">
                         <div class="device-header">
                             <div class="device-icon">
-                                <i class="fas fa-house-user"></i>
+                                <i class="fas {{ lobby.icon }}"></i>
                             </div>
-                            <div class="device-title">Домашнее лобби</div>
-                            <div class="device-status status-online">Online</div>
+                            <div class="device-title">{{ lobby.name }}</div>
+                            {% if lobby.is_active %}
+                                <div class="device-status status-online">Online</div>
+                            {% else %}
+                                <div class="device-status status-offline">Offline</div>
+                            {% endif %}
                         </div>
                         <div class="device-info">
-                            Основное лобби • Устройств: 5 • Участников: 3
+                            Код: {{ lobby.code }} <br>
+                            Участников: {{ lobby.memberships.count }}
                         </div>
                         <div class="device-actions">
-                            <a href="{% url 'account' %}" class="btn btn-small">Войти</a>
-                            <a href="{% url 'lobby_set' %}" class="btn btn-small btn-outline">Параметры</a>
+                            <a href="{% url 'lobby_set' lobby.id %}" class="btn btn-small btn-outline">Параметры</a>
+                            <a href="{% url 'lobby_detail' lobby.id %}" class="btn btn-small">Войти</a>
                         </div>
                     </div>
+                    {% endfor %}
 
-                    <div class="device-card">
-                        <div class="device-header">
-                            <div class="device-icon">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <div class="device-title">Офисное лобби</div>
-                            <div class="device-status status-online">Online</div>
-                        </div>
-                        <div class="device-info">
-                            Рабочее пространство • Устройств: 3 • Участников: 5
-                        </div>
-                        <div class="device-actions">
-                            <a href="{% url 'account' %}" class="btn btn-small">Войти</a>
-                            <a href="{% url 'lobby_set' %}" class="btn btn-small btn-outline">Параметры</a>
-                        </div>
-                    </div>
-
-                    <div class="device-card">
-                        <div class="device-header">
-                            <div class="device-icon">
-                                <i class="fas fa-home"></i>
-                            </div>
-                            <div class="device-title">Загородный дом</div>
-                            <div class="device-status status-offline">Offline</div>
-                        </div>
-                        <div class="device-info">
-                            Дача • Устройств: 2 • Участников: 1
-                        </div>
-                        <div class="device-actions">
-                            <a href="{% url 'account' %}" class="btn btn-small">Войти</a>
-                            <a href="{% url 'lobby_set' %}" class="btn btn-small btn-outline">Параметры</a>
-                        </div>
-                    </div>
-
-                    <!-- Карточка для добавления/создания лобби -->
+                    <!-- Карточка для добавления нового лобби (всегда последняя) -->
                     <div class="device-card add-device-card">
                         <div class="device-header">
                             <div class="device-icon">
@@ -83,8 +69,7 @@
                             Создайте новое лобби или присоединитесь к существующему
                         </div>
                         <div class="device-actions">
-                            <a href="{% url 'lobby_add' %}" class="btn btn-small">Добавить</a>
-                            <a href="{% url 'lobby_cre' %}" class="btn btn-small btn-outline">Создать</a>
+                            <a href="{% url 'lobby_cre' %}" class="btn btn-small">Создать новое</a>
                         </div>
                     </div>
                 </div>

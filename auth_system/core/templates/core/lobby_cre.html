@@ -10,33 +10,34 @@
         <div class="account-container">
             <div class="sidebar">
                 <ul class="sidebar-nav">
-                    <li><a href="{% url 'lobby' %}"><i class="fas fa-arrow-left"></i> Назад</a></li>
+                    <li><a href="{% url 'lobby' %}"><i class="fas fa-arrow-left"></i> Назад к лобби</a></li>
                     <li><a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки профиля</a></li>
                 </ul>
             </div>
 
             <div class="account-content">
-                <div class="form-container">
-                    <h3>Создать новое лобби</h3>
+                <div class="device-card" style="max-width: 500px; margin: 0 auto;">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="device-title">Создать новое лобби</div>
+                    </div>
                     <form method="POST">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <label class="form-label">Название лобби</label>
-                            <input type="text" class="form-input" name="lobby_name" placeholder="Введите уникальное название" required>
+                        <div class="device-info">
+                            <div class="form-group">
+                                <label class="form-label">Название лобби</label>
+                                <input type="text"
+                                       class="form-input"
+                                       name="lobby_name"
+                                       placeholder="Введите название лобби"
+                                       required>
+                            </div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Код доступа (6 цифр)</label>
-                            <input type="text" class="form-input" name="lobby_code" placeholder="000000" pattern="[0-9]{6}" maxlength="6" required>
-                            <small style="color: rgba(255,255,255,0.7);">Введите ровно 6 цифр</small>
+                        <div class="device-actions">
+                            <button type="submit" class="btn btn-small">Создать лобби</button>
                         </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Повторите код доступа</label>
-                            <input type="text" class="form-input" name="lobby_code_confirm" placeholder="000000" pattern="[0-9]{6}" maxlength="6" required>
-                        </div>
-                        
-                        <button type="submit" class="btn" style="width: 100%;">Создать лобби</button>
                     </form>
                 </div>
             </div>

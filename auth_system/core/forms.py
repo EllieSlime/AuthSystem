@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
+from .models import Lobby, LobbyMembership
 
 
 class RegisterForm(forms.ModelForm):
@@ -238,4 +239,33 @@ class ProfileUpdateForm(forms.ModelForm):
             user.save()
         return user
 
+class LobbyCreateForm(forms.ModelForm):
+    class Meta:
+        model = Lobby
+        fields = ["name"]
 
+
+class AddMemberForm(forms.Form):
+    email = forms.EmailField(label="Email пользователя")
+    role = forms.ChoiceField(choices=LobbyMembership.ROLE_CHOICES)
+
+    def __init__(self, *args, **kwargs):
+        self.lobby = kwargs.pop("lobby", None)
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise forms.ValidationError("Пользователь с таким email не найден")
+        return email
+
+    def save(self):
+        email = self.cleaned_data["email"]
+        role = self.cleaned_data["role"]
+        user = User.objects.get(email=email)
+        membership, created = LobbyMembership.objects.get_or_create(user=user, lobby=self.lobby)
+        membership.role = role
+        membership.save()
+        return membership

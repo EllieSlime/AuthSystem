@@ -1,16 +1,19 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, LoginForm, ProfileUpdateForm, CurrentPasswordForm, PasswordChangeCustomForm
+from .forms import RegisterForm, LoginForm, CurrentPasswordForm, PasswordChangeCustomForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from django.shortcuts import render, redirect
-from django.contrib import messages
+
+
+
+from .models import Lobby, LobbyMembership
+from .forms import LobbyCreateForm, AddMemberForm
 
 from .forms import (
-    ProfileUpdateForm,
+
     PasswordChangeCustomForm,
     ProfileUpdateForm,
     CurrentPasswordForm,
@@ -40,12 +43,10 @@ def error403(request):
 def login_page(request):
     return render(request, "core/login_page.html")
 
-def lobby(request):
-    return render(request, "core/lobby.html")
+
 def lobby_add(request):
     return render(request, "core/lobby_add.html")
-def lobby_set(request):
-    return render(request, "core/lobby_set.html")
+
 def lobby_cre(request):
     return render(request, "core/lobby_cre.html")
 
@@ -61,6 +62,9 @@ def register_view(request):
         if form.is_valid():
             #print("RegisterForm валиден")
             user = form.save(commit=False)
+            user.username = form.cleaned_data["email"]
+            user.first_name = form.cleaned_data["full_name"]
+
             user.set_password(form.cleaned_data["password"])
             user.save()
             #print("Новый пользователь сохранён:", user.username, user.email)
@@ -260,3 +264,135 @@ def deactivate_profile(request):
     logout(request)
     messages.info(request, "Ваш профиль был деактивирован. Для повторной активации обратитесь к администратору.")
     return redirect("home")
+
+@login_required
+def lobby_list(request):
+    my_lobbies = LobbyMembership.objects.filter(user=request.user)
+    return render(request, "core/lobby.html", {"my_lobbies": my_lobbies})
+
+
+@login_required
+def lobby_create(request):
+    if request.method == "POST":
+        form = LobbyCreateForm(request.POST)
+        if form.is_valid():
+            lobby = form.save(commit=False)
+            lobby.owner = request.user
+            lobby.save()
+            LobbyMembership.objects.create(user=request.user, lobby=lobby, role="owner")
+            messages.success(request, "Лобби успешно создано")
+            return redirect("lobby")
+    else:
+        form = LobbyCreateForm()
+    return render(request, "core/lobby_cre.html", {"form": form})
+
+
+@login_required
+def lobby_settings(request, lobby_id):
+    lobby = get_object_or_404(Lobby, id=lobby_id)
+    membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
+
+    if not membership or membership.role not in ["owner", "admin"]:
+        return redirect("error403")
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+
+        if form_type == "basic_settings":
+            lobby.name = request.POST.get("lobby_name")
+            lobby.is_public = "is_public" in request.POST
+            lobby.is_active = "is_active" in request.POST
+            lobby.save()
+            messages.success(request, "Изменения сохранены.")
+
+        elif form_type == "add_member":
+            form = AddMemberForm(request.POST, lobby=lobby)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Участник добавлен.")
+            else:
+                messages.error(request, "Ошибка при добавлении участника.")
+
+        elif form_type == "delete_confirm":
+            if membership.role == "owner":
+                lobby.delete()
+                messages.success(request, "Лобби удалено.")
+                return redirect("lobby")
+            else:
+                messages.error(request, "Удалить может только владелец.")
+
+    add_member_form = AddMemberForm(lobby=lobby)
+    members = LobbyMembership.objects.filter(lobby=lobby).select_related("user")
+
+    return render(request, "core/lobby_set.html", {
+        "lobby": lobby,
+        "add_member_form": add_member_form,
+        "members": members,
+    })
+
+
+
+
+
+@login_required
+def lobby_search(request):
+    """Поиск лобби по коду"""
+    query = request.GET.get("code")
+    result = None
+    if query:
+        try:
+            result = Lobby.objects.get(code=query, is_public=True, is_active=True)
+        except Lobby.DoesNotExist:
+            messages.error(request, "Лобби с таким кодом не найдено или оно приватное.")
+    return render(request, "core/lobby.html", {"search_result": result})
+
+@login_required
+def lobby(request):
+    """
+    Каталог лобби: показывает мои лобби или результат поиска по коду.
+    """
+    query = request.GET.get("code", "").strip()
+    error_message = None  # <-- добавляем переменную для сообщения об ошибке
+
+    if query:
+        # ищем лобби по коду
+        try:
+            lobbies = [Lobby.objects.get(code=query, is_active=True, is_public=True)]
+        except Lobby.DoesNotExist:
+            # если публичного лобби с кодом нет, показываем только свои лобби
+            lobbies = Lobby.objects.filter(memberships__user=request.user, is_active=True)
+            error_message = "Лобби с таким идентификатором не найдено или оно приватное."
+    else:
+        # если строка пустая → показываем мои лобби
+        lobbies = Lobby.objects.filter(memberships__user=request.user, is_active=True)
+
+    return render(request, "core/lobby.html", {
+        "lobbies": lobbies,
+        "search_query": query,
+        "error_message": error_message,  # передаём в шаблон
+    })
+
+@login_required
+def lobby_cre(request):
+    """
+    Создание нового лобби (форма простая: только имя).
+    После создания — добавляем пользователя как owner в таблицу memberships и редиректим в каталог.
+    """
+    if request.method == "POST":
+        name = (request.POST.get("lobby_name") or "").strip()
+        if not name:
+            messages.error(request, "Введите название лобби.")
+            return render(request, "core/lobby_cre.html")
+        # создаём лобби, save() сам сгенерирует уникальный code
+        lobby = Lobby.objects.create(name=name, owner=request.user)
+        # создаём membership владельца
+        LobbyMembership.objects.create(lobby=lobby, user=request.user, role="owner")
+        messages.success(request, f"Лобби «{lobby.name}» создано (код: {lobby.code}).")
+        return redirect("lobby")
+    # GET
+    return render(request, "core/lobby_cre.html")
+
+@login_required
+def lobby_detail(request, lobby_id):
+    lobby = get_object_or_404(Lobby, id=lobby_id)
+    return render(request, "core/lobby_detail.html", {"lobby": lobby})
