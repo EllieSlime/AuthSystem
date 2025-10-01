@@ -6,7 +6,7 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path("adminn/", views.adminn, name="adminn"),
     path("assistant/", views.assistant, name="assistant"),
-    path("device/", views.device, name="device"),
+
     path("error401/", views.error401, name="error401"),
     path("error403/", views.error403, name="error403"),
     path("login_page/", views.login_page, name="login_page"),
@@ -31,4 +31,8 @@ urlpatterns = [
     # placeholder для настроек и входа в лобби (можно реализовать позже)
     path("lobby/<int:lobby_id>/settings/", views.lobby_settings, name="lobby_set"),
     path("lobby/<int:lobby_id>/", views.lobby_detail, name="lobby_detail"),
+
+    path("lobby/<int:lobby_id>/device/add/", views.device_add, name="device_add"),
+    path("lobby/<int:lobby_id>/device/<int:device_id>/", views.device_detail, name="device_detail"),
+    path("lobby/<int:lobby_id>/device/<int:device_id>/delete/", views.device_delete, name="device_delete"),
 ]

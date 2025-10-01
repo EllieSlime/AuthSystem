@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% block title %}{{ device.name }} - SmartHome{% endblock %}
+
+{% block content %}
+<section class="device">
+    <div class="container">
+        <h2 class="section-title">Термометр - {{ device.name }}</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'lobby_detail' lobby.id %}"><i class="fas fa-arrow-left"></i> Назад к каталогу</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-sliders-h"></i> Показания</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <div class="control-panel">
+                    <h3>Текущие данные</h3>
+
+                    <div class="control-group">
+                        <p>Температура: <strong>23.4°C</strong></p>
+                    </div>
+                    <div class="control-group">
+                        <p>Влажность: <strong>45%</strong></p>
+                    </div>
+                    <div class="control-group">
+                        <p>Давление: <strong>1012 hPa</strong></p>
+                    </div>
+                </div>
+                {% if user_role in "owner,admin" %}
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="device-title">Доступ к устройству</div>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="update_access_roles">
+                        <div class="device-info">
+                            <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <label class="form-label" style="flex: 1;">Владелец</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="role_owner" checked disabled>
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <label class="form-label" style="flex: 1;">Администратор</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="role_admin" {% if "admin" in device.roles_list %}checked{% endif %} disabled>
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <label class="form-label" style="flex: 1;">Участник</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="role_member" {% if "member" in device.roles_list %}checked{% endif %}>
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <label class="form-label" style="flex: 1;">Гость</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="role_guest" {% if "guest" in device.roles_list %}checked{% endif %}>
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="device-actions">
+                            <button type="submit" class="btn btn-small">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

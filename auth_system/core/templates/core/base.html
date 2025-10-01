@@ -868,15 +868,23 @@
             </ul>
 
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="{% url 'login_page' %}"><i class="fas fa-sign-in-alt"></i> Вход</a>
-                <a href="{% url 'device' %}"><i class="fas fa-lightbulb"></i> Устройство</a>
                 <a href="{% url 'assistant' %}"><i class="fas fa-robot"></i> Помощник</a>
                 <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Настройки</a>
-                <a href="{% url 'adminn' %}"><i class="fas fa-tools"></i> Админка</a>
-                <a href="{% url 'error401' %}"><i class="fas fa-lock"></i> Ошибка 401</a>
-                <a href="{% url 'error403' %}"><i class="fas fa-ban"></i> Ошибка 403</a>
-                <a href="{% url 'lobby' %}"><i class="fas fa-ban"></i> Лобби</a>
-                <a href="{% url 'lobby_cre' %}"><i class="fas fa-ban"></i> Лобби_cre</a>
+                <!--a href="{% url 'adminn' %}"><i class="fas fa-tools"></i> Админка</a-->
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'lobby' %}"><i class="fas fa-list"></i> Лобби</a>
+                {% else %}
+                    <a href="{% url 'error401' %}"><i class="fas fa-list"></i> Лобби</a>
+                {% endif %}
+
+
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}"><i class="fas fa-sign-out"></i> Выйти</a>
+                {% else %}
+                    <a href="{% url 'login_page' %}"><i class="fas fa-sign-in-alt"></i> Войти</a>
+                {% endif %}
 
             </div>
         </div>

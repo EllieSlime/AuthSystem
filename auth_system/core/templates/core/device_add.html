@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% block title %}Добавить устройство - SmartHome{% endblock %}
+
+{% block content %}
+<section class="account">
+    <div class="container">
+        <h2 class="section-title">Добавить устройство</h2>
+
+        <div class="account-container">
+            <div class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'lobby_detail' lobby.id %}"><i class="fas fa-arrow-left"></i> Назад в лобби</a></li>
+                </ul>
+            </div>
+
+            <div class="account-content">
+                <!-- Карточка добавления устройства -->
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="device-title">Новое устройство</div>
+                    </div>
+                    <div class="device-info">
+                        Заполните форму ниже, чтобы добавить устройство в лобби
+                    </div>
+                    <div class="device-actions" style="flex-direction: column; gap: 15px; align-items: flex-start;">
+                        <form method="post" class="form-block" style="width: 100%;">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="id_name">Название устройства</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_device_type">Тип устройства</label>
+                                {{ form.device_type }}
+                            </div>
+                            <button type="submit" class="btn">Добавить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -8,8 +8,8 @@
         <div style="text-align: center; padding: 100px 0;">
             <i class="fas fa-ban" style="font-size: 5rem; color: var(--error); margin-bottom: 30px;"></i>
             <h2>403 Forbidden</h2>
-            <p style="margin-bottom: 30px; font-size: 1.2rem;">У вас нет прав на доступ к этому разделу.</p>
-            <a href="{% url 'home' %}" class="btn">Вернуться на главную</a>
+            <p style="margin-bottom: 30px; font-size: 1.2rem;">У вас нет права доступа к этому разделу.</p>
+            <a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn">Назад</a>
         </div>
     </div>
 </section>

@@ -187,12 +187,7 @@
                                                 {% if m.role == "owner" %}
                                                     <button class="btn btn-small btn-outline" disabled>Нельзя исключить</button>
                                                 {% else %}
-                                                    <form method="post" style="display:inline;">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="form_type" value="remove_member">
-                                                        <input type="hidden" name="member_id" value="{{ m.id }}">
-                                                        <button type="submit" class="btn btn-small btn-outline">Исключить</button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-small btn-outline" onclick="removeMember({{ m.id }})">Исключить</button>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -251,6 +246,23 @@ function showDeleteConfirm() {
         // Здесь будет запрос на удаление лобби
         alert('Лобби будет удалено');
     }
+}
+
+function removeMember(memberId) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = ''; // текущий URL
+    form.style.display = 'none';
+
+    const csrfToken = '{{ csrf_token }}'; // Django подставит токен
+    form.innerHTML = `
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+        <input type="hidden" name="form_type" value="remove_member">
+        <input type="hidden" name="member_id" value="${memberId}">
+    `;
+
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 

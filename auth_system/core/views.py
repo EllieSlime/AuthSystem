@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, LoginForm, CurrentPasswordForm, PasswordChangeCustomForm
+from .forms import RegisterForm, LoginForm, CurrentPasswordForm, PasswordChangeCustomForm, AddDeviceForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
 
-from .models import Lobby, LobbyMembership
+from .models import Lobby, LobbyMembership, Device
 from .forms import LobbyCreateForm, AddMemberForm
 
 from .forms import (
@@ -33,8 +33,7 @@ def adminn(request):
     return render(request, "core/adminn.html")
 def assistant(request):
     return render(request, "core/assistant.html")
-def device(request):
-    return render(request, "core/device.html")
+
 def error401(request):
     return render(request, "core/error401.html")
 def error403(request):
@@ -391,6 +390,7 @@ def lobby_search(request):
 
 @login_required
 def lobby(request):
+
     query = request.GET.get("code", "").strip()
     error_message = None
 
@@ -448,7 +448,7 @@ def lobby_detail(request, lobby_id):
         membership = LobbyMembership.objects.create(user=request.user, lobby=lobby, role="guest")
 
     # Для устройств пока просто пустой список
-    devices = []
+    devices = lobby.devices.all()
 
     return render(request, "core/lobby_detail.html", {
         "lobby": lobby,
@@ -476,3 +476,91 @@ def lobby_leave(request, lobby_id):
         return redirect("lobby")
 
     return redirect("lobby")
+
+@login_required
+def device_add(request, lobby_id):
+    lobby = get_object_or_404(Lobby, id=lobby_id)
+    membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
+
+    if not membership or membership.role == "guest":
+        messages.error(request, "Гости не могут добавлять устройства.")
+        return redirect("lobby_detail", lobby_id=lobby.id)
+
+    if request.method == "POST":
+        form = AddDeviceForm(request.POST)
+        if form.is_valid():
+            device = form.save(commit=False)
+            device.lobby = lobby
+            device.save()
+            messages.success(request, f"Устройство {device.name} добавлено.")
+            return redirect("lobby_detail", lobby_id=lobby.id)
+    else:
+        form = AddDeviceForm()
+
+    return render(request, "core/device_add.html", {"form": form, "lobby": lobby})
+
+
+@login_required
+def device_detail(request, lobby_id, device_id):
+    lobby = get_object_or_404(Lobby, id=lobby_id)
+    device = get_object_or_404(Device, id=device_id, lobby=lobby)
+
+    membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
+    user_role = membership.role if membership else "guest"
+
+    # --- Проверка доступа к устройству ---
+    if device.access_roles:
+        allowed_roles = device.access_roles.split(",")  # список ролей, которые имеют доступ
+        if user_role not in allowed_roles:
+            # Нет доступа → перенаправляем на шаблон с ошибкой
+            return render(request, "core/error403.html", {
+                "message": "У вас нет доступа к этому устройству.",
+                "lobby": lobby,
+                "device": device,
+            })
+
+    # Обработка POST для изменения ролей доступа
+    if request.method == "POST" and request.POST.get("form_type") == "update_access_roles":
+        if user_role in ["owner", "admin"]:
+            roles = []
+            for role in ["owner", "admin", "member", "guest"]:
+                if request.POST.get(f"role_{role}"):
+                    roles.append(role)
+            # всегда гарантируем owner/admin
+            if "owner" not in roles:
+                roles.append("owner")
+            if "admin" not in roles:
+                roles.append("admin")
+            device.access_roles = ",".join(roles)
+            device.save()
+            messages.success(request, "Права доступа к устройству обновлены.")
+        else:
+            messages.error(request, "У вас нет прав изменять доступ к устройствам.")
+
+    templates = {
+        "lamp": "core/device_lamp.html",
+        "kettle": "core/device_kettle.html",
+        "thermometer": "core/device_thermometer.html",
+    }
+    template = templates.get(device.device_type, "core/device_detail.html")
+
+    return render(request, template, {
+        "lobby": lobby,
+        "device": device,
+        "user_role": user_role,
+    })
+
+
+@login_required
+def device_delete(request, lobby_id, device_id):
+    lobby = get_object_or_404(Lobby, id=lobby_id)
+    device = get_object_or_404(Device, id=device_id, lobby=lobby)
+    membership = LobbyMembership.objects.filter(user=request.user, lobby=lobby).first()
+
+    if not membership or membership.role not in ["owner", "admin"]:
+        messages.error(request, "Удалять устройства могут только владелец и администраторы.")
+        return redirect("lobby_detail", lobby_id=lobby.id)
+
+    device.delete()
+    messages.success(request, "Устройство удалено.")
+    return redirect("lobby_detail", lobby_id=lobby.id)

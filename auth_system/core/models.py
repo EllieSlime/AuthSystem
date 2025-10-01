@@ -71,3 +71,30 @@ class LobbyMembership(models.Model):
         return f"{self.user} @ {self.lobby} ({self.role})"
 
 
+class Device(models.Model):
+    DEVICE_TYPES = [
+        ("kettle", "Чайник"),
+        ("thermometer", "Термометр"),
+        ("lamp", "Лампочка"),
+    ]
+
+    lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, related_name="devices")
+    name = models.CharField(max_length=100)
+    device_type = models.CharField(max_length=20, choices=DEVICE_TYPES)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    # активное ли устройство (например, если лобби отключено)
+    is_active = models.BooleanField(default=True)
+
+    # ✅ по умолчанию — доступ всем кроме гостей
+    access_roles = models.CharField(
+        max_length=100,
+        default="owner,admin,member"
+    )
+    def roles_list(self):
+        """Разбивает строку access_roles в список ролей"""
+        return [r.strip() for r in self.access_roles.split(",") if r.strip()]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_device_type_display()})"
+

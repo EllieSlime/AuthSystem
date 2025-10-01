@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
-from .models import Lobby, LobbyMembership
+from .models import Lobby, LobbyMembership, Device
 
 
 class RegisterForm(forms.ModelForm):
@@ -269,3 +269,12 @@ class AddMemberForm(forms.Form):
         membership.role = role
         membership.save()
         return membership
+
+class AddDeviceForm(forms.ModelForm):
+    class Meta:
+        model = Device
+        fields = ["name", "device_type"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Название устройства"}),
+            "device_type": forms.Select(attrs={"class": "form-input"}),
+        }
