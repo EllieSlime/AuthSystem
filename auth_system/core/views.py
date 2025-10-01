@@ -384,7 +384,7 @@ def lobby_search(request):
     result = None
     if query:
         try:
-            result = Lobby.objects.get(code=query, is_public=True, is_active=True)
+            result = Lobby.objects.get(code=query, is_public=True)
         except Lobby.DoesNotExist:
             messages.error(request, "Лобби с таким кодом не найдено или оно приватное.")
     return render(request, "core/lobby.html", {"search_result": result})
@@ -397,13 +397,13 @@ def lobby(request):
     if query:
         try:
             # просто ищем лобби, без добавления участника
-            lobby_obj = Lobby.objects.get(code=query, is_active=True, is_public=True)
+            lobby_obj = Lobby.objects.get(code=query, is_public=True)
             lobbies = [lobby_obj]
         except Lobby.DoesNotExist:
-            lobbies = Lobby.objects.filter(memberships__user=request.user, is_active=True)
+            lobbies = Lobby.objects.filter(memberships__user=request.user)
             error_message = "Лобби с таким идентификатором не найдено или оно приватное."
     else:
-        lobbies = Lobby.objects.filter(memberships__user=request.user, is_active=True)
+        lobbies = Lobby.objects.filter(memberships__user=request.user)
 
     # прикрепляем роль текущего пользователя к каждому лобби (если он состоит в нём)
     for lb in lobbies:
