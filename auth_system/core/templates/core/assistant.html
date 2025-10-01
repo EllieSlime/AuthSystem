@@ -23,33 +23,42 @@
                     <div class="chat-messages">
                         <div class="message message-bot">
                             <div class="message-content">
-                                Привет! Я ваш умный помощник. Чем могу помочь?
+                                <i class="fas fa-tools" style="color: #ff9800; margin-right: 8px;"></i>
+                                <strong>Умный помощник временно недоступен</strong>
+                                <br>
+                                <span style="font-size: 0.9em; color: rgba(255,255,255,0.7);">
+                                    В настоящее время я нахожусь в разработке. Скоро я смогу помогать вам управлять умным домом!
+                                </span>
                             </div>
                         </div>
-                        <div class="message message-user">
-                            <div class="message-content">
-                                Включи свет в гостиной
+
+                        <!-- Скрытые демо-сообщения -->
+                        <div style="display: none;">
+                            <div class="message message-user">
+                                <div class="message-content">
+                                    Включи свет в гостиной
+                                </div>
                             </div>
-                        </div>
-                        <div class="message message-bot">
-                            <div class="message-content">
-                                Свет в гостиной включен. Яркость установлена на 75%.
+                            <div class="message message-bot">
+                                <div class="message-content">
+                                    Свет в гостиной включен. Яркость установлена на 75%.
+                                </div>
                             </div>
-                        </div>
-                        <div class="message message-user">
-                            <div class="message-content">
-                                Установи температуру 22 градуса в спальне
+                            <div class="message message-user">
+                                <div class="message-content">
+                                    Установи температуру 22 градуса в спальне
+                                </div>
                             </div>
-                        </div>
-                        <div class="message message-bot">
-                            <div class="message-content">
-                                Температура в спальне установлена на 22°C.
+                            <div class="message message-bot">
+                                <div class="message-content">
+                                    Температура в спальне установлена на 22°C.
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="chat-input">
-                        <input type="text" placeholder="Введите сообщение или нажмите на микрофон...">
-                        <button><i class="fas fa-microphone"></i></button>
+                    <div class="chat-input" style="opacity: 0.5; pointer-events: none;">
+                        <input type="text" placeholder="Функция чата временно недоступна" disabled>
+                        <button disabled><i class="fas fa-microphone"></i></button>
                     </div>
                 </div>
             </div>
