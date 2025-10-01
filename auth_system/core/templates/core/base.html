@@ -1095,39 +1095,25 @@
             });
         });
 
-        (function() {
-            const current = window.location.pathname; // текущий путь
-            const historyKey = 'pageHistory';
-            const maxHistory = 10;
+        document.addEventListener('DOMContentLoaded', function() {
+            const backLink = document.getElementById('back-link');
+            if (!backLink) return;
 
-            // Получаем историю из sessionStorage или создаём пустую
-            let history = JSON.parse(sessionStorage.getItem(historyKey) || '[]');
+            backLink.addEventListener('click', function(e) {
+                e.preventDefault();
 
-            // Найти последнюю страницу, отличную от текущей
-            let backUrl = '/'; // fallback
-            for (let i = history.length - 1; i >= 0; i--) {
-                if (history[i] !== current) {
-                    backUrl = history[i];
-                    break;
+                const referrer = document.referrer; // предыдущий URL
+                const current = window.location.href;
+
+                // Если предыдущая страница существует и она не текущая
+                if (referrer && referrer !== current) {
+                    window.location.href = referrer;
+                } else {
+                    // Если нет предыдущей страницы или это текущая — запасной URL
+                    window.history.back(); // или '/lobby/' если хочешь конкретный fallback
                 }
-            }
-
-            // Назначаем ссылку на кнопку
-            document.getElementById('back-link').href = backUrl;
-
-            // Добавляем текущую страницу в историю, если она не последняя
-            if (history.length === 0 || history[history.length - 1] !== current) {
-                history.push(current);
-            }
-
-            // Ограничиваем длину истории
-            if (history.length > maxHistory) {
-                history = history.slice(history.length - maxHistory);
-            }
-
-            // Сохраняем историю обратно
-            sessionStorage.setItem(historyKey, JSON.stringify(history));
-        })();
+            });
+        });
 
         document.addEventListener("DOMContentLoaded", function() {
             const deleteBtn = document.getElementById("delete-profile-btn");
