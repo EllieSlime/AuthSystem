@@ -12,7 +12,6 @@ ICON_CHOICES = [
     ("fa-home", "Home"),
 ]
 
-
 def _generate_code():
     chars = string.ascii_uppercase + string.digits
     return ''.join(random.choices(chars, k=6))
@@ -24,7 +23,6 @@ class CustomUser(AbstractUser):
 def generate_lobby_code():
     """Генерация случайного 6-значного кода"""
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-
 
 class Lobby(models.Model):
     name = models.CharField(max_length=255)
@@ -51,7 +49,6 @@ class Lobby(models.Model):
             self.icon = random.choice([c[0] for c in ICON_CHOICES])
         super().save(*args, **kwargs)
 
-
 class LobbyMembership(models.Model):
     ROLE_CHOICES = [
         ("owner", "Владелец"),
@@ -70,7 +67,6 @@ class LobbyMembership(models.Model):
     def __str__(self):
         return f"{self.user} @ {self.lobby} ({self.role})"
 
-
 class Device(models.Model):
     DEVICE_TYPES = [
         ("kettle", "Чайник"),
@@ -82,11 +78,8 @@ class Device(models.Model):
     name = models.CharField(max_length=100)
     device_type = models.CharField(max_length=20, choices=DEVICE_TYPES)
     created_at = models.DateTimeField(default=timezone.now)
-
-    # активное ли устройство (например, если лобби отключено)
     is_active = models.BooleanField(default=True)
 
-    # ✅ по умолчанию — доступ всем кроме гостей
     access_roles = models.CharField(
         max_length=100,
         default="owner,admin,member"

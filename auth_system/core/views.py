@@ -1,25 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, LoginForm, CurrentPasswordForm, PasswordChangeCustomForm, AddDeviceForm
-from django.contrib.auth import update_session_auth_hash
+from .forms import RegisterForm, LoginForm, AddDeviceForm, PasswordChangeCustomForm, ProfileUpdateForm, CurrentPasswordForm
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
-
-
 from .models import Lobby, LobbyMembership, Device
 from .forms import LobbyCreateForm, AddMemberForm
-
-from .forms import (
-
-    PasswordChangeCustomForm,
-    ProfileUpdateForm,
-    CurrentPasswordForm,
-)
-
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 
@@ -28,59 +14,49 @@ def home(request):
     return render(request, "core/home.html")
 def about(request):
     return render(request, "core/about.html")
-
 def adminn(request):
     return render(request, "core/adminn.html")
 def assistant(request):
     return render(request, "core/assistant.html")
-
 def error401(request):
     return render(request, "core/error401.html")
 def error403(request):
     return render(request, "core/error403.html")
 def login_page(request):
     return render(request, "core/login_page.html")
-
-
 def lobby_add(request):
     return render(request, "core/lobby_add.html")
-
 def lobby_cre(request):
     return render(request, "core/lobby_cre.html")
 
 def register_view(request):
-    #print("=== register_view вызван. method:", request.method)
     if request.user.is_authenticated:
         return redirect("lobby")
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
-        #print("POST данные (регистрация):", request.POST)
 
         if form.is_valid():
-            #print("RegisterForm валиден")
             user = form.save(commit=False)
             user.username = form.cleaned_data["email"]
             user.first_name = form.cleaned_data["full_name"]
 
             user.set_password(form.cleaned_data["password"])
             user.save()
-            #print("Новый пользователь сохранён:", user.username, user.email)
 
-            login(request, user)  # сразу авторизуем
-            #print("Пользователь авторизован после регистрации:", user.username)
+            login(request, user)
 
             messages.success(request, "Регистрация завершена! Выполняется вход...")
             return redirect("lobby")
         else:
-            #print("RegisterForm НЕ валиден. Ошибки:", form.errors)
+
             return render(request, "core/login_page.html", {
                 'active_tab': 'register',
                 "register_form": form,
                 "login_form": LoginForm()
             })
     else:
-        #print("Регистрация: GET-запрос")
+
         form = RegisterForm()
 
     return render(request, "core/login_page.html", {
@@ -88,34 +64,24 @@ def register_view(request):
         "login_form": LoginForm()
     })
 
-
 def login_view(request):
-    #print("=== login_view вызван. method:", request.method)
     if request.user.is_authenticated:
         return redirect("lobby")
 
     if request.method == "POST":
-        #print("POST данные (логин):", request.POST)
+
         form = LoginForm(request.POST)
 
         if form.is_valid():
-            #print("LoginForm валиден")
             user = form.cleaned_data.get("user")
-            #print("cleaned_data.user =", user)
-
             if user:
                 login(request, user)
-                #print("Успешный вход:", user.username)
                 messages.success(request, "Добро пожаловать, вы вошли!")
                 return redirect("lobby")
-            #else:
-                #print("⚠️ user = None, хотя форма валидна")
-        #else:
-            #print("LoginForm НЕ валиден. Ошибки:", form.errors)
 
         messages.error(request, "Неверный логин или пароль.")
     else:
-        #print("Логин: GET-запрос")
+
         form = LoginForm()
 
     return render(request, "core/login_page.html", {
@@ -123,22 +89,20 @@ def login_view(request):
         "register_form": RegisterForm()
     })
 
-
 def logout_view(request):
-    #print("=== logout_view вызван. method:", request.method)
+
     logout(request)
-    #print("Пользователь разлогинен")
+
     return redirect("home")
 
 @login_required
 def settings_view(request):
-    # инициализация форм (не привязанные)
     profile_form = ProfileUpdateForm(instance=request.user)
     current_password_form = CurrentPasswordForm(user=request.user)
     password_form = PasswordChangeCustomForm(user=request.user)
 
-    active_tab = "profile"           # по умолчанию
-    show_new_password_form = False   # показывать второй шаг смены пароля?
+    active_tab = "profile"
+    show_new_password_form = False
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
@@ -156,14 +120,10 @@ def settings_view(request):
 
         # ------------- шаг 1: проверка текущего пароля -------------
         elif form_type == "password_verify":
-            # привязываем форму проверки текущего пароля
             current_password_form = CurrentPasswordForm(request.user, request.POST)
             if current_password_form.is_valid():
-                # пароль верный — показываем форму ввода нового пароля
                 show_new_password_form = True
                 active_tab = "password"
-                # password_form остаётся unbound (пустой) — пользователь введёт новый пароль
-                # рендерим страницу (не редирект), чтобы остались ошибки/контекст
                 return render(request, "core/settings_page.html", {
                     "profile_form": profile_form,
                     "current_password_form": current_password_form,
@@ -172,7 +132,7 @@ def settings_view(request):
                     "show_new_password_form": show_new_password_form,
                 })
             else:
-                # ошибка проверки текущего пароля — current_password_form содержит ошибки
+
                 messages.error(request, "Неверный текущий пароль.")
                 active_tab = "password"
 
@@ -187,16 +147,14 @@ def settings_view(request):
                 messages.success(request, "Пароль успешно изменён.")
                 return redirect("settings")
             else:
-                # показать ошибки на шаге ввода нового пароля
                 messages.error(request, "Ошибка при смене пароля.")
                 active_tab = "password"
                 show_new_password_form = True
 
         else:
-            # неизвестный form_type — просто оставим всё как есть
+
             active_tab = request.POST.get("form_type", "profile")
 
-    # GET или падение валидации — отрисуем текущие формы
     return render(request, "core/settings_page.html", {
         "profile_form": profile_form,
         "current_password_form": current_password_form,
@@ -221,22 +179,6 @@ def update_profile(request):
             messages.error(request, "Ошибка при обновлении данных.")
     return redirect("settings")
 
-
-'''@login_required
-def update_address(request):
-    """Обновление адреса"""
-    if request.method == "POST":
-        form = AddressUpdateForm(request.POST)
-        if form.is_valid():
-            address = form.cleaned_data["address"]
-            request.user.address = address
-            request.user.save()
-            messages.success(request, "Адрес обновлен.")
-        else:
-            messages.error(request, "Ошибка при обновлении адреса.")
-    return redirect("settings")'''
-
-
 @login_required
 def change_password(request):
     """Смена пароля"""
@@ -246,7 +188,7 @@ def change_password(request):
             new_password = form.cleaned_data["new_password"]
             request.user.set_password(new_password)
             request.user.save()
-            update_session_auth_hash(request, request.user)  # остаёмся в сессии
+            update_session_auth_hash(request, request.user)
             messages.success(request, "Пароль успешно изменён.")
             return redirect("settings")
         else:
@@ -268,7 +210,6 @@ def lobby_list(request):
     my_lobbies = LobbyMembership.objects.filter(user=request.user)
     return render(request, "core/lobby.html", {"my_lobbies": my_lobbies})
 
-
 @login_required
 def lobby_create(request):
     if request.method == "POST":
@@ -283,7 +224,6 @@ def lobby_create(request):
     else:
         form = LobbyCreateForm()
     return render(request, "core/lobby_cre.html", {"form": form})
-
 
 @login_required
 def lobby_settings(request, lobby_id):
@@ -312,7 +252,6 @@ def lobby_settings(request, lobby_id):
             # добавлять участников может и админ, и владелец
             form = AddMemberForm(request.POST, lobby=lobby)
             if form.is_valid():
-                # если добавляет админ → запрещено назначать владельца
                 role = form.cleaned_data.get("role")
                 if membership.role == "admin" and role == "owner":
                     messages.error(request, "Администратор не может назначить владельца.")
@@ -369,12 +308,8 @@ def lobby_settings(request, lobby_id):
         "lobby": lobby,
         "add_member_form": add_member_form,
         "members": members,
-        "user_role": membership.role,   # 👈 важно
+        "user_role": membership.role,
     })
-
-
-
-
 
 @login_required
 def lobby_search(request):
@@ -396,7 +331,6 @@ def lobby(request):
 
     if query:
         try:
-            # просто ищем лобби, без добавления участника
             lobby_obj = Lobby.objects.get(code=query, is_public=True)
             lobbies = [lobby_obj]
         except Lobby.DoesNotExist:
@@ -405,7 +339,6 @@ def lobby(request):
     else:
         lobbies = Lobby.objects.filter(memberships__user=request.user)
 
-    # прикрепляем роль текущего пользователя к каждому лобби (если он состоит в нём)
     for lb in lobbies:
         membership = LobbyMembership.objects.filter(user=request.user, lobby=lb).first()
         lb.user_role = membership.role if membership else None
@@ -416,13 +349,9 @@ def lobby(request):
         "error_message": error_message,
     })
 
-
 @login_required
 def lobby_cre(request):
-    """
-    Создание нового лобби (форма простая: только имя).
-    После создания — добавляем пользователя как owner в таблицу memberships и редиректим в каталог.
-    """
+
     if request.method == "POST":
         name = (request.POST.get("lobby_name") or "").strip()
         if not name:
@@ -434,7 +363,6 @@ def lobby_cre(request):
         LobbyMembership.objects.create(lobby=lobby, user=request.user, role="owner")
         messages.success(request, f"Лобби «{lobby.name}» создано (код: {lobby.code}).")
         return redirect("lobby")
-    # GET
     return render(request, "core/lobby_cre.html")
 
 @login_required
@@ -447,13 +375,12 @@ def lobby_detail(request, lobby_id):
         # пользователь не состоит в лобби → создаём как guest
         membership = LobbyMembership.objects.create(user=request.user, lobby=lobby, role="guest")
 
-    # Для устройств пока просто пустой список
     devices = lobby.devices.all()
 
     return render(request, "core/lobby_detail.html", {
         "lobby": lobby,
         "devices": devices,
-        "user_role": membership.role,   # 👈 чтобы в шаблоне можно было скрывать кнопки
+        "user_role": membership.role,
     })
 
 @login_required
@@ -498,7 +425,6 @@ def device_add(request, lobby_id):
         form = AddDeviceForm()
 
     return render(request, "core/device_add.html", {"form": form, "lobby": lobby})
-
 
 @login_required
 def device_detail(request, lobby_id, device_id):
@@ -549,7 +475,6 @@ def device_detail(request, lobby_id, device_id):
         "device": device,
         "user_role": user_role,
     })
-
 
 @login_required
 def device_delete(request, lobby_id, device_id):

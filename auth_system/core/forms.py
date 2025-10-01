@@ -1,13 +1,10 @@
 from django import forms
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-
 from .models import Lobby, LobbyMembership, Device
-
 
 class RegisterForm(forms.ModelForm):
     full_name = forms.CharField(
@@ -66,24 +63,18 @@ class RegisterForm(forms.ModelForm):
 
     def clean_password2(self):
         cd = self.cleaned_data
-        #print("RegisterForm.clean_password2 вызван. cd =", cd)
         if cd.get("password") != cd.get("password2"):
-            #print("⚠️ Пароли не совпадают")
             self.add_error("password", "Пароли не совпадают!")
             return
-            #raise forms.ValidationError("Пароли не совпадают!")
+
         return cd["password2"]
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        #print("RegisterForm.clean_email вызван. email =", email)
         if User.objects.filter(email=email).exists():
-            #print("⚠️ Email уже занят:", email)
             self.add_error("email", "Пользователь с таким email уже зарегистрирован.")
             return
-            #raise forms.ValidationError("Пользователь с таким email уже зарегистрирован.")
         return email
-
 
 class LoginForm(forms.Form):
     email = forms.EmailField(
@@ -120,29 +111,20 @@ class LoginForm(forms.Form):
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
 
-        #print("LoginForm.clean вызван. email:", email, "| password:", password)
-
         if email and password:
             try:
                 user_obj = User.objects.get(email=email)
-                #print("Пользователь найден:", user_obj.username)
             except User.DoesNotExist:
-                #print("⚠️ Пользователь с email", email, "не найден")
-                #raise forms.ValidationError("Пользователь с таким email не найден.")
                 self.add_error("email", "Пользователь с таким email не найден.")
                 return
 
             user = authenticate(username=user_obj.username, password=password)
-            #print("authenticate вернул:", user)
 
             if user is None:
-                #print("⚠️ Неверный пароль для email:", email)
-                #raise forms.ValidationError("Неверный пароль.")
                 self.add_error("password", "Неверный пароль.")
                 return
 
             cleaned_data["user"] = user
-            print("✅ Авторизация успешна. user =", user)
 
         return cleaned_data
 
@@ -243,7 +225,6 @@ class LobbyCreateForm(forms.ModelForm):
     class Meta:
         model = Lobby
         fields = ["name"]
-
 
 class AddMemberForm(forms.Form):
     email = forms.EmailField(label="Email пользователя")
